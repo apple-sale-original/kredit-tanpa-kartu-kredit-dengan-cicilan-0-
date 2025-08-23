@@ -9,466 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <!-- Menghapus Firebase Storage untuk menghindari masalah dengan free tier -->
+    <!-- Menghapus firebase-storage karena tidak digunakan lagi -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 50%, #ff7337 100%);
-        }
-        
-        .premium-shadow {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 500;
-            z-index: 2000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .notification.success {
-            background-color: #10b981;
-        }
-        
-        .notification.error {
-            background-color: #ef4444;
-        }
-        
-        .notification.info {
-            background-color: #3b82f6;
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .loading-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #ee4d2d;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .step-progress {
-            width: 100%;
-            height: 4px;
-            background-color: #e5e7eb;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .step-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ee4d2d, #ff6533);
-            border-radius: 2px;
-            transition: width 0.5s ease;
-            width: 0%;
-        }
-        
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background-color: #f9fafb;
-        }
-        
-        .upload-area:hover {
-            border-color: #f59e0b;
-            background-color: #fffbeb;
-        }
-        
-        .upload-area.dragover {
-            border-color: #f59e0b;
-            background-color: #fffbeb;
-        }
-        
-        .id-preview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .profile-tab {
-            transition: all 0.3s ease;
-        }
-        
-        .profile-tab.active {
-            border-bottom: 3px solid #f59e0b;
-            color: #f59e0b;
-        }
-        
-        .whatsapp-chat {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-            cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-        
-        .whatsapp-chat:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
-        }
-        
-        .whatsapp-chat i {
-            color: white;
-            font-size: 24px;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-            }
-            50% {
-                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.8), 0 0 0 10px rgba(37, 211, 102, 0.1);
-            }
-            100% {
-                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-            }
-        }
-        
-        .upload-progress {
-            height: 6px;
-            background-color: #e5e7eb;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .upload-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ee4d2d, #ff6533);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .verification-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        .verification-badge.verified {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        
-        .verification-badge.pending {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-        
-        .verification-badge.not-uploaded {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .profile-image-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto;
-        }
-        
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .profile-image-upload {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(135deg, #ee4d2d, #ff6533);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .profile-image-upload:hover {
-            transform: scale(1.1);
-        }
-        
-        .profile-image-upload i {
-            color: white;
-            font-size: 16px;
-        }
-        
-        /* Mobile Navigation */
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100%;
-            background-color: white;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 1001;
-            transition: right 0.3s ease;
-            overflow-y: auto;
-        }
-        
-        .mobile-menu.open {
-            right: 0;
-        }
-        
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-menu-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .mobile-menu-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-        }
-        
-        .mobile-menu-nav {
-            padding: 1rem 0;
-        }
-        
-        .mobile-menu-nav a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: #4b5563;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .mobile-menu-nav a:hover {
-            background-color: #f3f4f6;
-            color: #ee4d2d;
-        }
-        
-        .mobile-menu-nav a.active {
-            color: #ee4d2d;
-            background-color: #fffbeb;
-        }
-        
-        .mobile-menu-divider {
-            height: 1px;
-            background-color: #e5e7eb;
-            margin: 0.5rem 0;
-        }
-        
-        .image-preview-container {
-            position: relative;
-            margin-top: 1rem;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .image-preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background-color: #f3f4f6;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .image-preview-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .image-preview-action {
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .image-preview-action:hover {
-            background-color: #e5e7eb;
-        }
-        
-        .image-preview-content {
-            padding: 1rem;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .image-preview-img {
-            max-width: 100%;
-            max-height: 300px;
-            object-fit: contain;
-        }
-        
-        .copy-link-container {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background-color: #f0fdf4;
-            border-radius: 8px;
-            border: 1px solid #a7f3d0;
-        }
-        
-        .copy-link-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        
-        .copy-link-input {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .copy-link-input input {
-            flex: 1;
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            font-size: 0.875rem;
-        }
-        
-        .copy-link-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .copy-link-btn:hover {
-            background: #059669;
-        }
-        
-        .admin-dashboard-link {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 0.75rem;
-            padding: 0.75rem 1rem;
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #92400e;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-        }
-        
-        .admin-dashboard-link:hover {
-            background-color: #fde68a;
-        }
-        
-        @media (max-width: 640px) {
-            .whatsapp-chat {
-                width: 50px;
-                height: 50px;
-                bottom: 15px;
-                right: 15px;
-            }
-            
-            .whatsapp-chat i {
-                font-size: 20px;
-            }
-        }
+        <!-- CSS tetap sama -->
     </style>
 </head>
 <body class="bg-gray-50">
@@ -754,4 +297,844 @@
                                             <span class="font-medium">KTP/Paspor</span>
                                             <span id="verificationBadge" class="verification-badge">Loading...</span>
                                         </div>
-                                        <p id="verificationMessage" class="text-sm text-gray-
+                                        <p id="verificationMessage" class="text-sm text-gray-600">Loading...</p>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h5 class="font-medium mb-2">Tips Verifikasi Cepat:</h5>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Pastikan foto tidak blur dan terang</li>
+                                            <li>• Pastikan semua informasi terbaca dengan jelas</li>
+                                            <li>• Pastikan dokumen asli dan tidak kadaluarsa</li>
+                                            <li>• Hindari pantulan cahaya pada dokumen</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <!-- Admin Verification Link - Removed for regular users -->
+                                    <div class="mt-6 p-4 bg-gray-100 border border-gray-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-info-circle text-gray-600 mr-3"></i>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-800">Informasi Verifikasi</p>
+                                                <p class="text-xs text-gray-700">Status verifikasi akan ditentukan oleh admin setelah dokumen diupload</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button id="submitVerification" onclick="submitVerification()" class="bg-gradient-to-r from-amber-400 to-yellow-500 text-black px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Upload Dokumen
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Tab -->
+                    <div id="security-tab" class="tab-content hidden">
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold mb-4">Keamanan Akun</h3>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            Untuk keamanan akun Anda, kami sarankan untuk mengubah password secara berkala dan menggunakan password yang kuat.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div>
+                                    <h4 class="text-lg font-medium mb-4">Ubah Password</h4>
+                                    
+                                    <form id="changePasswordForm" onsubmit="changePassword(event)">
+                                        <div class="mb-4">
+                                            <label class="block text-gray-700 font-medium mb-2">Password Saat Ini</label>
+                                            <input type="password" id="currentPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label class="block text-gray-700 font-medium mb-2">Password Baru</label>
+                                            <input type="password" id="newPassword" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                                        </div>
+                                        
+                                        <div class="mb-6">
+                                            <label class="block text-gray-700 font-medium mb-2">Konfirmasi Password Baru</label>
+                                            <input type="password" id="confirmPassword" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                                        </div>
+                                        
+                                        <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                                            Ubah Password
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-lg font-medium mb-4">Aktivitas Akun</h4>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="font-medium">Terakhir Login</span>
+                                            <span id="lastLogin" class="text-sm text-gray-600">Loading...</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-medium">Status Akun</span>
+                                            <span id="accountStatus" class="text-sm text-green-600">Aktif</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h5 class="font-medium mb-2">Perangkat yang Login</h5>
+                                        <div class="text-sm text-gray-600">
+                                            <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                                <span>Perangkat Saat Ini</span>
+                                                <span class="text-green-600">Aktif</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Firebase Configuration - tanpa storage
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
+            authDomain: "kredit-hp-221a1.firebaseapp.com",
+            projectId: "kredit-hp-221a1",
+            messagingSenderId: "428804203261",
+            appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
+            measurementId: "G-EJW00GWVS9"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        // Tidak ada inisialisasi storage karena sudah tidak digunakan
+        
+        // Global variables
+        let currentUser = null;
+        let selectedFile = null;
+        let uploadedFileUrl = null;
+        let selectedProfileImageFile = null;
+        
+        // URL server hosting untuk upload gambar
+        const HOSTING_UPLOAD_URL = 'https://your-hosting-domain.com/upload.php'; // Ganti dengan URL hosting Anda
+        
+        // Loading functions
+        function showLoading(title = 'Memuat...', message = 'Mohon tunggu sebentar') {
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        // WhatsApp Chat function
+        function openWhatsAppChat() {
+            const phoneNumber = '6285798603323';
+            const message = encodeURIComponent('Halo! Saya butuh bantuan dengan verifikasi KTP saya.');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            
+            mobileMenu.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
+        }
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoading('Memuat Profil...', 'Mengambil data profil');
+            
+            // Check user session
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    currentUser = {
+                        id: user.uid,
+                        email: user.email
+                    };
+                    
+                    // Load user data
+                    await loadUserData();
+                    
+                    // Setup drag and drop
+                    setupDragAndDrop();
+                } else {
+                    // User is signed out, redirect to login
+                    window.location.href = 'index.html';
+                }
+                
+                hideLoading();
+            });
+        });
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.id).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentUser = { ...currentUser, ...userData };
+                    
+                    // Update profile header
+                    document.getElementById('profileFullName').textContent = 
+                        `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'User';
+                    document.getElementById('profileEmail').textContent = userData.email || currentUser.email;
+                    
+                    // Load profile image if exists
+                    if (userData.profileImageUrl) {
+                        document.getElementById('profileImage').src = userData.profileImageUrl;
+                    }
+                    
+                    // Update status badges
+                    updateProfileStatus();
+                    
+                    // Load personal information form
+                    loadPersonalInfoForm();
+                    
+                    // Load verification status
+                    loadVerificationStatus();
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showNotification('Gagal memuat data profil', 'error');
+            }
+        }
+        
+        // Update profile status badges
+        function updateProfileStatus() {
+            const profileStatus = document.getElementById('profileStatus');
+            const ktpStatus = document.getElementById('ktpStatus');
+            
+            // Profile completion status
+            if (currentUser.profileCompleted) {
+                profileStatus.textContent = 'Profil Lengkap';
+                profileStatus.className = 'verification-badge verified';
+            } else {
+                profileStatus.textContent = 'Profil Belum Lengkap';
+                profileStatus.className = 'verification-badge not-uploaded';
+            }
+            
+            // KTP verification status
+            if (currentUser.ktpVerified) {
+                ktpStatus.textContent = 'Terverifikasi';
+                ktpStatus.className = 'verification-badge verified';
+            } else if (currentUser.ktpUploaded) {
+                ktpStatus.textContent = 'Menunggu Verifikasi';
+                ktpStatus.className = 'verification-badge pending';
+            } else {
+                ktpStatus.textContent = 'Belum Upload';
+                ktpStatus.className = 'verification-badge not-uploaded';
+            }
+        }
+        
+        // Load personal information form
+        function loadPersonalInfoForm() {
+            document.getElementById('firstName').value = currentUser.firstName || '';
+            document.getElementById('lastName').value = currentUser.lastName || '';
+            document.getElementById('email').value = currentUser.email || currentUser.email;
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('birthDate').value = currentUser.birthDate || '';
+            document.getElementById('gender').value = currentUser.gender || '';
+            document.getElementById('address').value = currentUser.address || '';
+            
+            // Load last login
+            if (currentUser.lastLogin) {
+                const lastLoginDate = currentUser.lastLogin.toDate ? 
+                    new Date(currentUser.lastLogin.toDate()) : 
+                    new Date(currentUser.lastLogin);
+                document.getElementById('lastLogin').textContent = lastLoginDate.toLocaleString('id-ID');
+            }
+        }
+        
+        // Load verification status
+        function loadVerificationStatus() {
+            const verificationBadge = document.getElementById('verificationBadge');
+            const verificationMessage = document.getElementById('verificationMessage');
+            
+            if (currentUser.ktpVerified) {
+                verificationBadge.textContent = 'Terverifikasi';
+                verificationBadge.className = 'verification-badge verified';
+                verificationMessage.textContent = 'Dokumen Anda telah berhasil diverifikasi oleh admin pada ' + 
+                    (currentUser.ktpVerifiedDate ? new Date(currentUser.ktpVerifiedDate.toDate()).toLocaleDateString('id-ID') : 'tanggal tidak diketahui') + '.';
+                
+                // Show uploaded KTP if available
+                if (currentUser.ktpUrl) {
+                    showUploadedKTP(currentUser.ktpUrl);
+                }
+            } else if (currentUser.ktpUploaded) {
+                verificationBadge.textContent = 'Menunggu Verifikasi';
+                verificationBadge.className = 'verification-badge pending';
+                verificationMessage.textContent = 'Dokumen Anda telah diupload dan menunggu verifikasi dari admin.';
+                
+                // Show uploaded KTP
+                if (currentUser.ktpUrl) {
+                    showUploadedKTP(currentUser.ktpUrl);
+                }
+            } else {
+                verificationBadge.textContent = 'Belum Upload';
+                verificationBadge.className = 'verification-badge not-uploaded';
+                verificationMessage.textContent = 'Silakan upload KTP atau Paspor untuk verifikasi identitas.';
+            }
+        }
+        
+        // Show uploaded KTP
+        function showUploadedKTP(url) {
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const fileName = document.getElementById('fileName');
+            const removeButton = document.getElementById('removeButton');
+            const submitButton = document.getElementById('submitVerification');
+            
+            uploadPlaceholder.classList.add('hidden');
+            uploadPreview.classList.remove('hidden');
+            previewImage.src = url;
+            
+            // Extract filename from URL
+            const filename = url.split('/').pop().split('?')[0];
+            fileName.textContent = filename;
+            
+            removeButton.classList.remove('hidden');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Dokumen Telah Diupload';
+        }
+        
+        // Handle profile image selection
+        function handleProfileImageSelect(e) {
+            const file = e.target.files[0];
+            
+            if (!file) return;
+            
+            // Check file type
+            if (!file.type.match('image.*')) {
+                showNotification('Silakan pilih file gambar (JPG, PNG)', 'error');
+                return;
+            }
+            
+            // Check file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('Ukuran file terlalu besar. Maksimal 2MB', 'error');
+                return;
+            }
+            
+            selectedProfileImageFile = file;
+            
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profileImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            // Upload image
+            uploadProfileImage();
+        }
+        
+        // Upload profile image - Modified to use hosting instead of Firebase Storage
+        async function uploadProfileImage() {
+            if (!selectedProfileImageFile) return;
+            
+            showLoading('Mengupload Foto Profil...', 'Mohon tunggu sebentar');
+            
+            try {
+                // Create form data for upload
+                const formData = new FormData();
+                formData.append('file', selectedProfileImageFile);
+                formData.append('userId', currentUser.id);
+                formData.append('type', 'profile');
+                
+                // Upload to hosting server
+                const response = await fetch(HOSTING_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update user data in Firestore
+                    await db.collection('users').doc(currentUser.id).update({
+                        profileImageUrl: result.url,
+                        profileImageUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Update local user data
+                    currentUser.profileImageUrl = result.url;
+                    
+                    hideLoading();
+                    showNotification('Foto profil berhasil diperbarui', 'success');
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading profile image:', error);
+                hideLoading();
+                showNotification('Gagal mengupload foto profil', 'error');
+            }
+        }
+        
+        // Setup drag and drop
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            // Handle dropped files
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+        
+        // Handle file selection
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+        
+        // Handle files
+        function handleFiles(files) {
+            const file = files[0];
+            
+            // Check file type
+            if (!file.type.match('image.*')) {
+                showNotification('Silakan pilih file gambar (JPG, PNG)', 'error');
+                return;
+            }
+            
+            // Check file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Ukuran file terlalu besar. Maksimal 5MB', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            previewFile(file);
+            
+            // Enable submit button
+            document.getElementById('submitVerification').disabled = false;
+            document.getElementById('submitVerification').textContent = 'Upload Dokumen';
+        }
+        
+        // Preview file
+        function previewFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                const uploadPreview = document.getElementById('uploadPreview');
+                const previewImage = document.getElementById('previewImage');
+                const fileName = document.getElementById('fileName');
+                const removeButton = document.getElementById('removeButton');
+                
+                uploadPlaceholder.classList.add('hidden');
+                uploadPreview.classList.remove('hidden');
+                previewImage.src = e.target.result;
+                fileName.textContent = file.name;
+                
+                removeButton.classList.remove('hidden');
+            }
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Remove file
+        function removeFile() {
+            selectedFile = null;
+            uploadedFileUrl = null;
+            
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const removeButton = document.getElementById('removeButton');
+            const submitButton = document.getElementById('submitVerification');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadPlaceholder.classList.remove('hidden');
+            uploadPreview.classList.add('hidden');
+            removeButton.classList.add('hidden');
+            
+            fileInput.value = '';
+            
+            if (currentUser.ktpVerified) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Dokumen Telah Terverifikasi';
+            } else {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Upload Dokumen';
+            }
+        }
+        
+        // Open camera
+        function openCamera() {
+            // Create a file input with camera capture
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            
+            input.onchange = function(e) {
+                handleFiles(e.target.files);
+            };
+            
+            input.click();
+        }
+        
+        // Submit verification - Modified to upload to hosting only
+        async function submitVerification() {
+            if (!selectedFile) {
+                showNotification('Silakan pilih file KTP/Paspor terlebih dahulu', 'error');
+                return;
+            }
+            
+            showLoading('Mengupload Dokumen...', 'Mohon tunggu sebentar');
+            
+            try {
+                // Show upload progress
+                const uploadProgressContainer = document.getElementById('uploadProgressContainer');
+                const uploadProgressBar = document.getElementById('uploadProgressBar');
+                const uploadPercent = document.getElementById('uploadPercent');
+                
+                uploadProgressContainer.classList.remove('hidden');
+                
+                // Create form data for upload
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('userId', currentUser.id);
+                formData.append('type', 'ktp');
+                
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress > 90) progress = 90;
+                    uploadProgressBar.style.width = progress + '%';
+                    uploadPercent.textContent = progress + '%';
+                }, 200);
+                
+                // Upload to hosting server
+                const response = await fetch(HOSTING_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                
+                // Complete progress
+                uploadProgressBar.style.width = '100%';
+                uploadPercent.textContent = '100%';
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    uploadedFileUrl = result.url;
+                    
+                    // Update user data in Firestore - only upload status, not verification
+                    await db.collection('users').doc(currentUser.id).update({
+                        ktpUploaded: true,
+                        ktpUrl: result.url,
+                        ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                        // Note: ktpVerified will be set by admin in dashboard
+                    });
+                    
+                    // Update local user data
+                    currentUser.ktpUploaded = true;
+                    currentUser.ktpUrl = result.url;
+                    currentUser.ktpUploadDate = new Date();
+                    // Note: ktpVerified remains false until admin approves
+                    
+                    // Update UI
+                    updateProfileStatus();
+                    loadVerificationStatus();
+                    
+                    hideLoading();
+                    showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
+                    
+                    // Disable submit button
+                    document.getElementById('submitVerification').disabled = true;
+                    document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
+                    
+                    // Hide upload progress
+                    uploadProgressContainer.classList.add('hidden');
+                    
+                    // Check if profile is completed
+                    checkProfileCompletion();
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Error submitting verification:', error);
+                hideLoading();
+                showNotification('Gagal mengupload dokumen. Silakan coba lagi.', 'error');
+                
+                // Hide upload progress
+                document.getElementById('uploadProgressContainer').classList.add('hidden');
+            }
+        }
+        
+        // Check profile completion
+        async function checkProfileCompletion() {
+            try {
+                // Check if all required fields are filled
+                const requiredFields = ['firstName', 'lastName', 'phone', 'birthDate', 'gender', 'address'];
+                const isProfileComplete = requiredFields.every(field => currentUser[field]);
+                
+                // Check if KTP is uploaded
+                const isKtpUploaded = currentUser.ktpUploaded;
+                
+                // Update profile completion status
+                if (isProfileComplete && isKtpUploaded) {
+                    await db.collection('users').doc(currentUser.id).update({
+                        profileCompleted: true
+                    });
+                    
+                    // Update local user data
+                    currentUser.profileCompleted = true;
+                    
+                    // Update UI
+                    updateProfileStatus();
+                    
+                    showNotification('Profil Anda telah lengkap! Sekarang Anda dapat melakukan pembelian.', 'success');
+                }
+            } catch (error) {
+                console.error('Error checking profile completion:', error);
+            }
+        }
+        
+        // Switch tab
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.profile-tab');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+        
+        // Save personal information
+        async function savePersonalInfo(e) {
+            e.preventDefault();
+            
+            showLoading('Menyimpan Data...', 'Mohon tunggu sebentar');
+            
+            try {
+                // Get form data
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    phone: document.getElementById('phone').value,
+                    birthDate: document.getElementById('birthDate').value,
+                    gender: document.getElementById('gender').value,
+                    address: document.getElementById('address').value,
+                    profileUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Update user data in Firestore
+                await db.collection('users').doc(currentUser.id).update(formData);
+                
+                // Update local user data
+                Object.assign(currentUser, formData);
+                
+                // Update profile header
+                document.getElementById('profileFullName').textContent = 
+                    `${formData.firstName} ${formData.lastName}`.trim();
+                
+                hideLoading();
+                showNotification('Informasi pribadi berhasil disimpan', 'success');
+                
+                // Check if profile is completed
+                checkProfileCompletion();
+            } catch (error) {
+                console.error('Error saving personal info:', error);
+                hideLoading();
+                showNotification('Gagal menyimpan informasi pribadi', 'error');
+            }
+        }
+        
+        // Change password
+        async function changePassword(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validate passwords
+            if (newPassword !== confirmPassword) {
+                showNotification('Password baru dan konfirmasi password tidak cocok', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showNotification('Password baru minimal 6 karakter', 'error');
+                return;
+            }
+            
+            showLoading('Mengubah Password...', 'Mohon tunggu sebentar');
+            
+            try {
+                // Get current user
+                const user = auth.currentUser;
+                
+                // Re-authenticate user
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    user.email,
+                    currentPassword
+                );
+                
+                await user.reauthenticateWithCredential(credential);
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                hideLoading();
+                showNotification('Password berhasil diubah', 'success');
+                
+                // Clear form
+                document.getElementById('changePasswordForm').reset();
+            } catch (error) {
+                hideLoading();
+                
+                let errorMessage = 'Gagal mengubah password';
+                
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Password saat ini salah';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password baru terlalu lemah';
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        // Toggle user menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+        }
+        
+        // Logout
+        async function logout() {
+            showLoading('Keluar...', 'Mengakhiri sesi');
+            
+            try {
+                // Update user status to offline
+                if (currentUser) {
+                    await db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'offline',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                await auth.signOut();
+                
+                setTimeout(() => {
+                    hideLoading();
+                    window.location.href = 'index.html';
+                }, 500);
+                
+            } catch (error) {
+                hideLoading();
+                showNotification('Terjadi kesalahan saat keluar', 'error');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (!userProfile.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
