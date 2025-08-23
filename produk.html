@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produk Apple - Apple Sale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 50%, #ff7337 100%);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .category-tab {
+            transition: all 0.3s ease;
+        }
+        
+        .category-tab.active {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 100%);
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+        }
+        
+        .notification.info {
+            background-color: #3b82f6;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #ee4d2d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .whatsapp-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .whatsapp-chat:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+        }
+        
+        .whatsapp-chat i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.8), 0 0 0 10px rgba(37, 211, 102, 0.1);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .whatsapp-chat {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .whatsapp-chat i {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="text-center">
+            <h3 id="loadingTitle" class="text-xl font-bold text-gray-800 mb-2">Memuat...</h3>
+            <p id="loadingMessage" class="text-gray-600 mb-4">Mohon tunggu sebentar</p>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+    
+    <!-- WhatsApp Chat Button -->
+    <div class="whatsapp-chat" onclick="openWhatsAppChat()">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-white text-base sm:text-xl"></i>
+                    </div>
+                    <span class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Apple Sale</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Beranda</a>
+                    <a href="produk.html" class="text-orange-600 font-medium">Produk</a>
+                    <a href="index.html#features" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Fitur</a>
+                    <a href="index.html#partners" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Partner</a>
+                    <a href="index.html#testimonials" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Testimoni</a>
+                    <a href="index.html#contact" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Kontak</a>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div id="guestButtons" class="flex items-center space-x-2 sm:space-x-3">
+                        <button onclick="showLoginModal()" class="text-gray-700 hover:text-orange-600 font-medium transition-colors text-sm sm:text-base">
+                            <i class="fas fa-sign-in-alt mr-1"></i>
+                            <span class="hidden sm:inline">Masuk</span>
+                        </button>
+                        <button onclick="showRegisterModal()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 text-xs sm:text-sm">
+                            <span class="hidden sm:inline">Daftar Sekarang</span>
+                            <span class="sm:hidden">Daftar</span>
+                        </button>
+                    </div>
+                    <div id="userProfile" class="hidden flex items-center space-x-2 sm:space-x-3">
+                        <div class="flex items-center space-x-1 sm:space-x-2">
+                            <div class="relative">
+                                <div id="userStatusIndicator" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs sm:text-sm"></i>
+                                </div>
+                            </div>
+                            <span id="userName" class="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline"></span>
+                        </div>
+                        <div class="relative">
+                            <button onclick="toggleUserMenu()" class="text-gray-500 hover:text-amber-600 transition-colors">
+                                <i class="fas fa-chevron-down text-sm"></i>
+                            </button>
+                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-lg py-2">
+                                <a href="profil.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-user mr-2"></i>Profil
+                                </a>
+                                <a href="checkout.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Checkout
+                                </a>
+                                <a href="payments.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-credit-card mr-2"></i>Pembayaran
+                                </a>
+                                <a href="riwayat.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-history mr-2"></i>Riwayat Pesanan
+                                </a>
+                                <hr class="my-2">
+                                <button onclick="logout()" class="block w-full text-left px-3 sm:px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="md:hidden text-gray-700" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Header -->
+    <div class="gradient-bg py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">Produk Apple Terlengkap</h1>
+                <p class="text-lg text-amber-100 max-w-3xl mx-auto">Temukan iPhone, MacBook, Apple Watch, dan iMac dengan cicilan 0% yang mudah dan cepat</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Tabs -->
+    <div class="bg-white shadow-sm sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex overflow-x-auto py-4 space-x-2 scrollbar-hide">
+                <button onclick="filterProducts('all')" class="category-tab active px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    Semua Produk
+                </button>
+                <button onclick="filterProducts('iphone')" class="category-tab px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    iPhone
+                </button>
+                <button onclick="filterProducts('macbook')" class="category-tab px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    MacBook
+                </button>
+                <button onclick="filterProducts('applewatch')" class="category-tab px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    Apple Watch
+                </button>
+                <button onclick="filterProducts('imac')" class="category-tab px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    iMac
+                </button>
+                <button onclick="filterProducts('ipad')" class="category-tab px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    iPad
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Section -->
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4" id="productsGrid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-white text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold">Apple Sale</span>
+                    </div>
+                    <p class="text-gray-300">Platform kredit terpercaya untuk produk Apple dengan cicilan 0% dan proses yang mudah.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Produk</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#iphone" class="hover:text-amber-400 transition-colors">iPhone</a></li>
+                        <li><a href="#macbook" class="hover:text-amber-400 transition-colors">MacBook</a></li>
+                        <li><a href="#applewatch" class="hover:text-amber-400 transition-colors">Apple Watch</a></li>
+                        <li><a href="#imac" class="hover:text-amber-400 transition-colors">iMac</a></li>
+                        <li><a href="#ipad" class="hover:text-amber-400 transition-colors">iPad</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Layanan</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Kredit 0%</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Garansi Resmi</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Support 24/7</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Gratis Ongkir</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Akun Saya</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="profil.html" class="hover:text-amber-400 transition-colors">Profil Saya</a></li>
+                        <li><a href="checkout.html" class="hover:text-amber-400 transition-colors">Checkout</a></li>
+                        <li><a href="payments.html" class="hover:text-amber-400 transition-colors">Pembayaran</a></li>
+                        <li><a href="riwayat.html" class="hover:text-amber-400 transition-colors">Riwayat Pesanan</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 Apple Sale. Semua hak dilindungi. | Diawasi oleh OJK</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);">
+        <div class="modal-content" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); margin: 5% auto; padding: 0; border-radius: 16px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalSlide 0.3s ease-out;">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Masuk ke Akun Anda</h2>
+                    <button onclick="closeModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Password</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                        Masuk
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Belum punya akun? 
+                        <button onclick="showRegisterModal()" class="text-amber-600 font-medium hover:underline">Daftar di sini</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);">
+        <div class="modal-content" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); margin: 5% auto; padding: 0; border-radius: 16px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalSlide 0.3s ease-out;">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Daftar Akun Baru</h2>
+                    <button onclick="closeModal('registerModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Nama Depan</label>
+                            <input type="text" id="firstName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Nama Belakang</label>
+                            <input type="text" id="lastName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Nomor Telepon</label>
+                        <input type="tel" id="phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Password</label>
+                        <input type="password" id="registerPassword" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                        Daftar Sekarang
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Sudah punya akun? 
+                        <button onclick="showLoginModal()" class="text-amber-600 font-medium hover:underline">Masuk di sini</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
+            authDomain: "kredit-hp-221a1.firebaseapp.com",
+            projectId: "kredit-hp-221a1",
+            storageBucket: "kredit-hp-221a1.firebasestorage.app",
+            messagingSenderId: "428804203261",
+            appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
+            measurementId: "G-EJW00GWVS9"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        
+        // Global variables
+        let currentUser = null;
+        let userActivityListener = null;
+        let currentFilter = 'all';
+        
+        // Products data
+        const products = [
+            // iPhone Products
+            {
+                id: 1,
+                name: "iPhone 16",
+                variant: "256GB • Ultramarine",
+                price: 15999000,
+                originalPrice: 17999000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_ultramarine_01_3.jpg&w=3840&q=45",
+                badge: "Terbaru",
+                badgeColor: "bg-blue-500",
+                sold: 2847,
+                rating: 4.9,
+                reviews: 1234,
+                discount: 11,
+                category: "iphone"
+            },
+            {
+                id: 2,
+                name: "iPhone 16",
+                variant: "128GB • Teal",
+                price: 13999000,
+                originalPrice: 15499000,
+                image: "https://www.mediazone.ma/product/images/16205-G1BKThXu/apple-iphone-16-256go-teal-maroc.webp",
+                badge: "Populer",
+                badgeColor: "bg-teal-500",
+                sold: 5632,
+                rating: 4.8,
+                reviews: 2156,
+                discount: 10,
+                category: "iphone"
+            },
+            {
+                id: 3,
+                name: "iPhone 15",
+                variant: "256GB • Black",
+                price: 13999000,
+                originalPrice: 15999000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_iphone_15_plus_black_1_1.jpg&w=3840&q=45",
+                badge: "Best Seller",
+                badgeColor: "bg-red-500",
+                sold: 8945,
+                rating: 4.9,
+                reviews: 3421,
+                discount: 13,
+                category: "iphone"
+            },
+            {
+                id: 4,
+                name: "iPhone 15",
+                variant: "128GB • Yellow",
+                price: 11999000,
+                originalPrice: 13499000,
+                image: "https://www.hellostore.id/cdn/shop/files/iPhone15-Yellow_01.jpg?v=1754853612&width=246",
+                badge: "Colorful",
+                badgeColor: "bg-yellow-500",
+                sold: 3456,
+                rating: 4.7,
+                reviews: 1876,
+                discount: 11,
+                category: "iphone"
+            },
+            {
+                id: 5,
+                name: "iPhone 16 Pro",
+                variant: "256GB • Natural Titanium",
+                price: 19999000,
+                originalPrice: 22999000,
+                image: "https://www.apple.com/newsroom/images/2024/09/apple-debuts-iphone-16-pro-and-iphone-16-pro-max/article/Apple-iPhone-16-Pro-hero-geo-240909_inline.jpg.large.jpg",
+                badge: "Pro",
+                badgeColor: "bg-purple-600",
+                sold: 1567,
+                rating: 4.9,
+                reviews: 789,
+                discount: 13,
+                category: "iphone"
+            },
+            {
+                id: 6,
+                name: "iPhone 14",
+                variant: "128GB • Purple",
+                price: 10999000,
+                originalPrice: 12999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPY_SIbnvoCJdWIWPE_NiLBQ79cgRI4aE8ag2K2zeEH4zWfbeulg2oC41nKOIXoqeObkE&usqp=CAU",
+                badge: "Hemat",
+                badgeColor: "bg-green-500",
+                sold: 4321,
+                rating: 4.6,
+                reviews: 2345,
+                discount: 15,
+                category: "iphone"
+            },
+            {
+                id: 7,
+                name: "iPhone 13",
+                variant: "128GB • Pink",
+                price: 9999000,
+                originalPrice: 11999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9tTtyXE9IljV-w5c6jtJvP1a-7wmrrQiYg1sTyIDWXlhHoICVdB5pgtY74pHV7oeWi6Q&usqp=CAU",
+                badge: "Murah",
+                badgeColor: "bg-pink-500",
+                sold: 6789,
+                rating: 4.5,
+                reviews: 3456,
+                discount: 17,
+                category: "iphone"
+            },
+            
+            // MacBook Products
+            {
+                id: 14,
+                name: "MacBook Pro M2",
+                variant: "13-inch • 256GB",
+                price: 18999000,
+                originalPrice: 21999000,
+                image: "https://images-cdn.ubuy.co.id/650188aee584193d8350a66b-2022-apple-macbook-pro-laptop-with-m2.jpg",
+                badge: "Laptop",
+                badgeColor: "bg-gray-700",
+                sold: 1234,
+                rating: 4.8,
+                reviews: 567,
+                discount: 14,
+                category: "macbook"
+            },
+            {
+                id: 15,
+                name: "MacBook Air",
+                variant: "13-inch • M1",
+                price: 12999000,
+                originalPrice: 14999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWHyezaTY7fn3CDfrt4sNSzay3_fx58R7M_RJpzhDioZid6c99vHQz_mTrES17QfbYdmo&usqp=CAU",
+                badge: "Laptop",
+                badgeColor: "bg-gray-700",
+                sold: 2345,
+                rating: 4.7,
+                reviews: 890,
+                discount: 13,
+                category: "macbook"
+            },
+            {
+                id: 16,
+                name: "MacBook Air 13 Inch",
+                variant: "256GB • M2",
+                price: 15999000,
+                originalPrice: 17999000,
+                image: "https://macfinder.co.uk/wp-content/uploads/2022/12/img-MacBook-Air-13-Inch-22502-scaled-scaled.jpg",
+                badge: "Laptop",
+                badgeColor: "bg-gray-700",
+                sold: 1876,
+                rating: 4.8,
+                reviews: 654,
+                discount: 11,
+                category: "macbook"
+            },
+            
+            // iMac Products
+            {
+                id: 17,
+                name: "iMac 24\"",
+                variant: "Pink • M1",
+                price: 17999000,
+                originalPrice: 19999000,
+                image: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/imac-pink-selection-hero-202410?wid=1200&hei=630&fmt=jpeg&qlt=95&.v=1730232515485",
+                badge: "Desktop",
+                badgeColor: "bg-indigo-600",
+                sold: 876,
+                rating: 4.9,
+                reviews: 432,
+                discount: 10,
+                category: "imac"
+            },
+            {
+                id: 18,
+                name: "iMac 24\"",
+                variant: "Blue • M1",
+                price: 17999000,
+                originalPrice: 19999000,
+                image: "https://www.digimap.co.id/cdn/shop/files/0788-APPMWV43ID-A-2.jpg?v=1737018728&width=823",
+                badge: "Desktop",
+                badgeColor: "bg-indigo-600",
+                sold: 654,
+                rating: 4.8,
+                reviews: 321,
+                discount: 10,
+                category: "imac"
+            },
+            {
+                id: 19,
+                name: "iMac 24\"",
+                variant: "Pink • M3",
+                price: 21999000,
+                originalPrice: 24999000,
+                image: "https://cdn.phonehouse.es/res/products-image/1/7/3/5/7/9/1735790-4916552.jpg?&w=800&h=800&trim=auto&auto=format&q=40",
+                badge: "Desktop",
+                badgeColor: "bg-indigo-600",
+                sold: 543,
+                rating: 4.9,
+                reviews: 287,
+                discount: 12,
+                category: "imac"
+            },
+            
+            // Apple Watch Products
+            {
+                id: 8,
+                name: "Apple Watch Ultra 2",
+                variant: "49mm • Ocean Band",
+                price: 12999000,
+                originalPrice: 14999000,
+                image: "https://iplanet.one/cdn/shop/files/Apple_Watch_Ultra_2_LTE_49mm_Titanium_Orange_Ocean_Band_PDP_Image_Avail_Position-1__en-IN_9ca47923-c612-46ac-a932-fbce9b5c705c.jpg?v=1698878148&width=1445",
+                badge: "Sport",
+                badgeColor: "bg-orange-500",
+                sold: 1234,
+                rating: 4.8,
+                reviews: 567,
+                discount: 13,
+                category: "applewatch"
+            },
+            {
+                id: 9,
+                name: "Apple Watch Ultra 2",
+                variant: "49mm • Navy Ocean Band",
+                price: 12999000,
+                originalPrice: 14999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjQitABqOMQ-H__VK0-YY_5n3-K_n4_UiuuQ&s",
+                badge: "Premium",
+                badgeColor: "bg-blue-800",
+                sold: 987,
+                rating: 4.9,
+                reviews: 432,
+                discount: 13,
+                category: "applewatch"
+            },
+            {
+                id: 10,
+                name: "Apple Watch & iPhone",
+                variant: "Combo Set",
+                price: 18999000,
+                originalPrice: 21999000,
+                image: "https://www.apple.com/v/watch/br/images/overview/consider_modals/watch-plus-iphone/modal_watch_and_iphone_ping__crra8o2hz04m_large.jpg",
+                badge: "Bundle",
+                badgeColor: "bg-indigo-600",
+                sold: 456,
+                rating: 4.8,
+                reviews: 234,
+                discount: 14,
+                category: "applewatch"
+            },
+            {
+                id: 11,
+                name: "Apple Watch Series 9",
+                variant: "41mm • Pink Sport Band",
+                price: 5999000,
+                originalPrice: 6999000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_watch_series_9_41mm_gps_pink_aluminium_case_with_light_pink_sport_band_6.jpg&w=3840&q=45",
+                badge: "Stylish",
+                badgeColor: "bg-pink-400",
+                sold: 2345,
+                rating: 4.7,
+                reviews: 1234,
+                discount: 14,
+                category: "applewatch"
+            },
+            {
+                id: 12,
+                name: "Apple Watch Series 9",
+                variant: "45mm • Pink Sport Band",
+                price: 6499000,
+                originalPrice: 7499000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_watch_series_9_41mm_gps_pink_aluminium_case_with_light_pink_sport_band_7.jpg&w=3840&q=45",
+                badge: "Trendy",
+                badgeColor: "bg-rose-400",
+                sold: 1876,
+                rating: 4.6,
+                reviews: 987,
+                discount: 13,
+                category: "applewatch"
+            },
+            {
+                id: 13,
+                name: "Apple Watch SE",
+                variant: "40mm • Sport Band",
+                price: 3999000,
+                originalPrice: 4999000,
+                image: "https://images.jamtangan.com/preset:sharp/resize:fit:462:492/dpr:1.5/width:462/height:492/resize:fit/plain/https://assets.jamtangan.com/images/product/apple/MJ3V2ZPA/1l_800x800.jpg",
+                badge: "Affordable",
+                badgeColor: "bg-gray-500",
+                sold: 3456,
+                rating: 4.4,
+                reviews: 1567,
+                discount: 20,
+                category: "applewatch"
+            },
+            
+            // iPad Products
+            {
+                id: 20,
+                name: "iPad Pro 12.9\"",
+                variant: "256GB • Wi-Fi",
+                price: 14999000,
+                originalPrice: 16999000,
+                image: "https://i.ebayimg.com/images/g/TicAAOSwhSFl-1Mq/s-l1200.jpg",
+                badge: "Tablet",
+                badgeColor: "bg-purple-500",
+                sold: 1234,
+                rating: 4.8,
+                reviews: 567,
+                discount: 12,
+                category: "ipad"
+            },
+            {
+                id: 21,
+                name: "iPad Pro 11\"",
+                variant: "128GB • Wi-Fi",
+                price: 11999000,
+                originalPrice: 13999000,
+                image: "https://i.ebayimg.com/images/g/zNYAAeSwcNdnwkEV/s-l1200.jpg",
+                badge: "Tablet",
+                badgeColor: "bg-purple-500",
+                sold: 1876,
+                rating: 4.7,
+                reviews: 890,
+                discount: 14,
+                category: "ipad"
+            },
+            {
+                id: 22,
+                name: "iPad Air",
+                variant: "64GB • Wi-Fi",
+                price: 8999000,
+                originalPrice: 10999000,
+                image: "https://i.ebayimg.com/images/g/oFoAAeSw-B5np2e5/s-l1200.jpg",
+                badge: "Tablet",
+                badgeColor: "bg-purple-500",
+                sold: 2345,
+                rating: 4.6,
+                reviews: 1234,
+                discount: 18,
+                category: "ipad"
+            },
+            {
+                id: 23,
+                name: "iPad 10th Gen",
+                variant: "64GB • Wi-Fi",
+                price: 6999000,
+                originalPrice: 8499000,
+                image: "https://i.ebayimg.com/images/g/-qMAAOSwZRtntjiT/s-l400.png",
+                badge: "Tablet",
+                badgeColor: "bg-purple-500",
+                sold: 3456,
+                rating: 4.5,
+                reviews: 1567,
+                discount: 18,
+                category: "ipad"
+            },
+            {
+                id: 24,
+                name: "iPad Mini",
+                variant: "64GB • Wi-Fi",
+                price: 7999000,
+                originalPrice: 9499000,
+                image: "https://i.ebayimg.com/images/g/h2wAAOSwF~9mmM3W/s-l1200.jpg",
+                badge: "Tablet",
+                badgeColor: "bg-purple-500",
+                sold: 2876,
+                rating: 4.7,
+                reviews: 1345,
+                discount: 16,
+                category: "ipad"
+            },
+            {
+                id: 25,
+                name: "iPhone 16 Pro Max",
+                variant: "256GB • Titanium",
+                price: 24999000,
+                originalPrice: 27999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRabcu9fsu_RJNZTpiMZUBSEHNSldyHytZHK7pV_p3Bq8NxlmFEIwZ6iE6IaVGkK_zPubY&usqp=CAU",
+                badge: "Premium",
+                badgeColor: "bg-gray-800",
+                sold: 987,
+                rating: 4.9,
+                reviews: 456,
+                discount: 11,
+                category: "iphone"
+            },
+            {
+                id: 26,
+                name: "iPhone 15 Pro Max",
+                variant: "256GB • Titanium",
+                price: 21999000,
+                originalPrice: 24999000,
+                image: "https://www.jarir.com/cdn-cgi/image/fit=contain,width=auto,height=auto,quality=85,metadata=none/https://ak-asset.jarir.com/akeneo-prod/asset/2/6/d/7/26d7d67a08a81968268faa4addb2331844de6abe_618903.jpg",
+                badge: "Premium",
+                badgeColor: "bg-gray-800",
+                sold: 1456,
+                rating: 4.8,
+                reviews: 678,
+                discount: 12,
+                category: "iphone"
+            },
+            {
+                id: 27,
+                name: "iPhone 16 Plus",
+                variant: "128GB • Pink",
+                price: 16999000,
+                originalPrice: 18999000,
+                image: "https://files.refurbed.com/ii/iphone-16-1725946161136913612.jpg?t=fitdesign&h=600&w=800",
+                badge: "Terbaru",
+                badgeColor: "bg-blue-500",
+                sold: 1234,
+                rating: 4.7,
+                reviews: 345,
+                discount: 11,
+                category: "iphone"
+            },
+            {
+                id: 28,
+                name: "iPhone 15 Plus",
+                variant: "128GB • Blue",
+                price: 14999000,
+                originalPrice: 16999000,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhG5iRZVMa-RCsViPy3cA3ltcoD9lc5nXiIjGv9JUaRh6g9UyaxI3mpdC93fo64ylf72M&usqp=CAU",
+                badge: "Best Seller",
+                badgeColor: "bg-red-500",
+                sold: 2345,
+                rating: 4.8,
+                reviews: 789,
+                discount: 12,
+                category: "iphone"
+            }
+        ];
+        
+        // Loading functions
+        function showLoading(title = 'Memuat...', message = 'Mohon tunggu sebentar') {
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        // WhatsApp Chat function
+        function openWhatsAppChat() {
+            const phoneNumber = '6285798603323';
+            const message = encodeURIComponent('Halo! Saya tertarik dengan produk Apple di Apple Sale. Bisakah Anda membantu saya?');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoading('Memuat Produk...', 'Mengambil data produk terbaru');
+            
+            // Load products
+            loadProducts();
+            
+            // Check user session
+            checkUserSession();
+            
+            setTimeout(() => {
+                hideLoading();
+            }, 1000);
+        });
+        
+        // Load products
+        function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            
+            const filteredProducts = currentFilter === 'all' 
+                ? products 
+                : products.filter(product => product.category === currentFilter);
+            
+            filteredProducts.forEach(product => {
+                const monthlyPayment = Math.round(product.price / 24);
+                const productCard = `
+                    <div class="product-card bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-lg transition-all duration-300 overflow-hidden">
+                        <div class="relative">
+                            <div class="w-full h-48 sm:h-56 bg-gray-50 overflow-hidden">
+                                <img src="${product.image}" alt="${product.name}" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gray-100 flex items-center justify-center text-4xl" style="display:none;">
+                                    📱
+                                </div>
+                            </div>
+                            <div class="absolute top-2 left-2 ${product.badgeColor} text-white px-2 py-1 rounded text-xs font-bold">
+                                ${product.badge}
+                            </div>
+                            ${product.discount ? `<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">-${product.discount}%</div>` : ''}
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium mb-1 line-clamp-2 h-10">${product.name}</h3>
+                            <p class="text-xs text-gray-500 mb-2">${product.variant}</p>
+                            
+                            <div class="mb-2">
+                                <div class="flex items-center space-x-1 mb-1">
+                                    <span class="text-lg font-bold text-orange-600">Rp${product.price.toLocaleString('id-ID')}</span>
+                                </div>
+                                ${product.originalPrice ? `<span class="text-xs text-gray-400 line-through">Rp${product.originalPrice.toLocaleString('id-ID')}</span>` : ''}
+                                <div class="text-xs text-gray-600 mt-1">Cicilan: Rp${monthlyPayment.toLocaleString('id-ID')}/bln</div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                <div class="flex items-center space-x-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <span class="ml-1">${product.rating}</span>
+                                    </div>
+                                    <span>|</span>
+                                    <span>Terjual ${product.sold.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="buyProduct(${product.id})" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded text-sm font-medium transition-colors duration-200">
+                                Beli Sekarang
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productsGrid.innerHTML += productCard;
+            });
+        }
+        
+        // Filter products by category
+        function filterProducts(category) {
+            currentFilter = category;
+            
+            // Update active tab
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                tab.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+            });
+            
+            event.target.classList.add('active');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+            
+            // Reload products with filter
+            loadProducts();
+        }
+        
+        // Check user session with Firebase Auth
+        function checkUserSession() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    currentUser = {
+                        id: user.uid,
+                        email: user.email,
+                        firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
+                        lastName: user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+                        joinDate: user.metadata.creationTime
+                    };
+                    
+                    showUserProfile();
+                    
+                    // Load user data from Firestore
+                    await loadUserData(user.uid);
+                    
+                    // Setup real-time user activity tracking
+                    setupUserActivityTracking();
+                } else {
+                    // User is signed out
+                    currentUser = null;
+                    hideUserProfile();
+                    
+                    // Remove activity listener if exists
+                    if (userActivityListener) {
+                        userActivityListener();
+                        userActivityListener = null;
+                    }
+                }
+            });
+        }
+        
+        // Setup real-time user activity tracking
+        function setupUserActivityTracking() {
+            if (!currentUser) return;
+            
+            const userRef = db.collection('users').doc(currentUser.id);
+            
+            // Update last activity timestamp
+            const updateActivity = () => {
+                userRef.update({
+                    lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+                    isOnline: true
+                }).catch(error => {
+                    console.error('Error updating activity:', error);
+                });
+            };
+            
+            // Update activity immediately
+            updateActivity();
+            
+            // Update activity every 30 seconds
+            const activityInterval = setInterval(updateActivity, 30000);
+            
+            // Listen for user status changes
+            userActivityListener = db.collection('userStatus')
+                .doc(currentUser.id)
+                .onSnapshot(doc => {
+                    const status = doc.data();
+                    if (status) {
+                        updateUserStatusIndicator(status.status);
+                    }
+                });
+            
+            // Update status to online
+            db.collection('userStatus').doc(currentUser.id).set({
+                userId: currentUser.id,
+                status: 'online',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Handle page visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // User switched tab or minimized window
+                    db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'away',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // User is back on the page
+                    db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'online',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updateActivity();
+                }
+            });
+            
+            // Handle beforeunload (user closing page)
+            window.addEventListener('beforeunload', () => {
+                db.collection('userStatus').doc(currentUser.id).update({
+                    status: 'offline',
+                    lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                clearInterval(activityInterval);
+            });
+        }
+        
+        // Update user status indicator
+        function updateUserStatusIndicator(status) {
+            const indicator = document.getElementById('userStatusIndicator');
+            if (!indicator) return;
+            
+            switch (status) {
+                case 'online':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white';
+                    break;
+                case 'away':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white';
+                    break;
+                case 'offline':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full border-2 border-white';
+                    break;
+                default:
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full border-2 border-white';
+            }
+        }
+        
+        // Load user data from Firestore
+        async function loadUserData(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentUser = { ...currentUser, ...userData };
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+        
+        // Show user profile in navigation
+        function showUserProfile() {
+            document.getElementById('guestButtons').classList.add('hidden');
+            document.getElementById('userProfile').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+        }
+        
+        // Hide user profile in navigation
+        function hideUserProfile() {
+            document.getElementById('guestButtons').classList.remove('hidden');
+            document.getElementById('userProfile').classList.add('hidden');
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function showLoginModal() {
+            closeModal('registerModal');
+            showModal('loginModal');
+        }
+        
+        function showRegisterModal() {
+            closeModal('loginModal');
+            showModal('registerModal');
+        }
+        
+        // Toggle user menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+        }
+        
+        // Handle login with Firebase Auth
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoading('Masuk ke Akun...', 'Memverifikasi kredensial');
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                setTimeout(() => {
+                    hideLoading();
+                    closeModal('loginModal');
+                    showNotification('Berhasil masuk!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('loginForm').reset();
+                }, 1000);
+                
+            } catch (error) {
+                hideLoading();
+                let errorMessage = 'Terjadi kesalahan saat masuk';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Email tidak terdaftar';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Password salah';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Format email tidak valid';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Terlalu banyak percobaan. Coba lagi nanti';
+                        break;
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        // Handle register with Firebase Auth
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            showLoading('Membuat Akun...', 'Mendaftarkan pengguna baru');
+            
+            try {
+                // Create user with Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update user profile
+                await user.updateProfile({
+                    displayName: `${firstName} ${lastName}`
+                });
+                
+                // Save additional user data to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    joinDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+                    isOnline: true,
+                    profileCompleted: false,
+                    ktpUploaded: false,
+                    ktpVerified: false
+                });
+                
+                // Create user status document
+                await db.collection('userStatus').doc(user.uid).set({
+                    userId: user.uid,
+                    status: 'online',
+                    lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                setTimeout(() => {
+                    hideLoading();
+                    closeModal('registerModal');
+                    showNotification('Pendaftaran berhasil! Silakan lengkapi profil Anda.', 'success');
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    
+                    // Redirect to profile page to complete profile
+                    setTimeout(() => {
+                        window.location.href = 'profil.html';
+                    }, 1500);
+                }, 1000);
+                
+            } catch (error) {
+                hideLoading();
+                let errorMessage = 'Terjadi kesalahan saat mendaftar';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Email sudah terdaftar';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password terlalu lemah (minimal 6 karakter)';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Format email tidak valid';
+                        break;
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        // Logout with Firebase Auth
+        async function logout() {
+            showLoading('Keluar...', 'Mengakhiri sesi');
+            
+            try {
+                // Update user status to offline
+                if (currentUser) {
+                    await db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'offline',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                await auth.signOut();
+                
+                setTimeout(() => {
+                    hideLoading();
+                    showNotification('Berhasil keluar!', 'info');
+                }, 500);
+                
+            } catch (error) {
+                hideLoading();
+                showNotification('Terjadi kesalahan saat keluar', 'error');
+            }
+        }
+        
+        // Buy product
+        function buyProduct(productId) {
+            if (!currentUser) {
+                showNotification('Silakan login terlebih dahulu!', 'error');
+                showLoginModal();
+                return;
+            }
+            
+            // Check if profile is completed
+            if (!currentUser.profileCompleted) {
+                showNotification('Silakan lengkapi profil Anda terlebih dahulu!', 'error');
+                setTimeout(() => {
+                    window.location.href = 'profil.html';
+                }, 1000);
+                return;
+            }
+            
+            // Check if KTP is uploaded and verified
+            if (!currentUser.ktpUploaded || !currentUser.ktpVerified) {
+                showNotification('Silakan upload KTP/Paspor untuk verifikasi!', 'error');
+                setTimeout(() => {
+                    window.location.href = 'profil.html';
+                }, 1000);
+                return;
+            }
+            
+            // Redirect to checkout page
+            window.location.href = 'checkout.html?productId=' + productId;
+        }
+        
+        // Utility functions
+        function toggleMobileMenu() {
+            // Mobile menu functionality can be added here
+            showNotification('Menu mobile akan segera tersedia!', 'info');
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (!userProfile.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

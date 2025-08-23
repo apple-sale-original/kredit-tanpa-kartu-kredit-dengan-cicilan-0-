@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="KODE_VERIFIKASI_GOOGLE_ANDA" />
+    <title>Apple Sale - Platform Kredit iPhone Terpercaya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 50%, #ff7337 100%);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 50%, #ff7337 100%);
+        }
+        
+        .premium-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 95%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlide 0.3s ease-out;
+        }
+        
+        @media (max-width: 640px) {
+            .modal-content {
+                margin: 2% auto;
+                width: 98%;
+                max-height: 95vh;
+                border-radius: 12px;
+            }
+        }
+        
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 100%);
+        }
+        
+        .testimonial-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        .stats-counter {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff6533 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .payment-method {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .payment-method:hover {
+            transform: scale(1.02);
+        }
+        
+        .payment-method.selected {
+            border-color: #f59e0b;
+            background-color: #fef3c7;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            background-color: #e5e7eb;
+            color: #6b7280;
+            font-weight: bold;
+        }
+        
+        .step.active {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .step.completed {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+        }
+        
+        .notification.info {
+            background-color: #3b82f6;
+        }
+        
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #ee4d2d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-dots {
+            display: flex;
+            space-x: 4px;
+            margin-top: 10px;
+        }
+        
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ee4d2d;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            } 40% {
+                transform: scale(1);
+            }
+        }
+        
+        .step-progress {
+            width: 100%;
+            height: 4px;
+            background-color: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .step-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ee4d2d, #ff6533);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        /* WhatsApp Chat Button */
+        .whatsapp-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .whatsapp-chat:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+        }
+        
+        .whatsapp-chat i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.8), 0 0 0 10px rgba(37, 211, 102, 0.1);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            }
+        }
+        
+        .whatsapp-tooltip {
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-tooltip::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-left-color: #333;
+        }
+        
+        .whatsapp-chat:hover .whatsapp-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 640px) {
+            .whatsapp-chat {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .whatsapp-chat i {
+                font-size: 20px;
+            }
+            
+            .whatsapp-tooltip {
+                display: none;
+            }
+        }
+        
+        /* Partner Section */
+        .partner-logo {
+            transition: all 0.3s ease;
+            filter: grayscale(100%);
+            opacity: 0.7;
+        }
+        
+        .partner-logo:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        
+        /* ID Card Upload */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        
+        .upload-area.dragover {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        
+        .id-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="text-center">
+            <h3 id="loadingTitle" class="text-xl font-bold text-gray-800 mb-2">Memuat...</h3>
+            <p id="loadingMessage" class="text-gray-600 mb-4">Mohon tunggu sebentar</p>
+            <div class="step-progress">
+                <div id="progressBar" class="step-progress-bar"></div>
+            </div>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+    
+    <!-- WhatsApp Chat Button -->
+    <div class="whatsapp-chat" onclick="openWhatsAppChat()">
+        <div class="whatsapp-tooltip">Chat dengan kami</div>
+        <i class="fab fa-whatsapp"></i>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-white text-base sm:text-xl"></i>
+                    </div>
+                    <span class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Apple Sale</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#home" class="text-orange-600 font-medium">Beranda</a>
+                    <a href="produk.html" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Produk</a>
+                    <a href="#features" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Fitur</a>
+                    <a href="#partners" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Partner</a>
+                    <a href="#testimonials" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Testimoni</a>
+                    <a href="#contact" class="text-gray-700 hover:text-orange-600 font-medium transition-colors">Kontak</a>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div id="guestButtons" class="flex items-center space-x-2 sm:space-x-3">
+                        <button onclick="showLoginModal()" class="text-gray-700 hover:text-orange-600 font-medium transition-colors text-sm sm:text-base">
+                            <i class="fas fa-sign-in-alt mr-1"></i>
+                            <span class="hidden sm:inline">Masuk</span>
+                        </button>
+                        <button onclick="showRegisterModal()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 text-xs sm:text-sm">
+                            <span class="hidden sm:inline">Daftar Sekarang</span>
+                            <span class="sm:hidden">Daftar</span>
+                        </button>
+                    </div>
+                    <div id="userProfile" class="hidden flex items-center space-x-2 sm:space-x-3">
+                        <div class="flex items-center space-x-1 sm:space-x-2">
+                            <div class="relative">
+                                <div id="userStatusIndicator" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs sm:text-sm"></i>
+                                </div>
+                            </div>
+                            <span id="userName" class="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline"></span>
+                        </div>
+                        <div class="relative">
+                            <button onclick="toggleUserMenu()" class="text-gray-500 hover:text-amber-600 transition-colors">
+                                <i class="fas fa-chevron-down text-sm"></i>
+                            </button>
+                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 sm:w-48 bg-white rounded-lg shadow-lg py-2">
+                                <a href="profil.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-user mr-2"></i>Profil
+                                </a>
+                                <a href="checkout.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Checkout
+                                </a>
+                                <a href="payments.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-credit-card mr-2"></i>Pembayaran
+                                </a>
+                                <a href="riwayat.html" class="block w-full text-left px-3 sm:px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors text-sm">
+                                    <i class="fas fa-history mr-2"></i>Riwayat Pesanan
+                                </a>
+                                <hr class="my-2">
+                                <button onclick="logout()" class="block w-full text-left px-3 sm:px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="md:hidden text-gray-700" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient py-12 sm:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div class="text-white text-center lg:text-left">
+                    <h1 class="text-3xl sm:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+                        Miliki iPhone Impian dengan 
+                        <span class="text-black">Cicilan 0%</span>
+                    </h1>
+                    <p class="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-amber-100">
+                        Platform kredit terpercaya untuk produk Apple. Proses cepat, bunga 0%, dan tanpa ribet!
+                    </p>
+                    <div class="flex flex-col space-y-3 sm:space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+                        <button onclick="showRegisterModal()" class="bg-white text-orange-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-100 transition-all duration-300 premium-shadow">
+                            <i class="fas fa-rocket mr-2"></i>
+                            Mulai Sekarang
+                        </button>
+                        <button onclick="window.location.href='produk.html'" class="bg-white bg-opacity-20 text-white border-2 border-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-orange-600 transition-all duration-300">
+                            <i class="fas fa-mobile-alt mr-2"></i>
+                            Lihat Produk
+                        </button>
+                    </div>
+                </div>
+                <div class="relative mt-8 lg:mt-0">
+                    <div class="floating-card bg-white bg-opacity-10 backdrop-blur-lg rounded-3xl p-4 sm:p-6 lg:p-8 premium-shadow">
+                        <div class="text-center text-white">
+                            <div class="w-full h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-gray-800 to-black rounded-2xl mx-auto mb-4 sm:mb-6 overflow-hidden">
+                                <img src="https://www.hellostore.id/cdn/shop/files/PreOrder_iPhone_16_Pro_Website_Banner_hello__alt2.png?v=1743070870" alt="iPhone 16" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full flex items-center justify-center" style="display:none;">
+                                    <i class="fas fa-mobile-alt text-4xl sm:text-5xl lg:text-6xl text-amber-400"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold mb-2">iPhone 16</h3>
+                            <p class="text-orange-200 mb-3 sm:mb-4 text-sm sm:text-base">Mulai dari Rp 667.000/bulan</p>
+                            <div class="bg-black bg-opacity-30 rounded-xl p-3 sm:p-4">
+                                <p class="text-xs sm:text-sm mb-2">Cicilan 24 bulan • 0% bunga</p>
+                                <p class="text-lg sm:text-xl lg:text-2xl font-bold">Rp 15.999.000</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="py-12 sm:py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center">
+                <div>
+                    <div class="stats-counter text-2xl sm:text-3xl">15K+</div>
+                    <p class="text-gray-600 font-medium text-sm sm:text-base">Pelanggan Puas</p>
+                </div>
+                <div>
+                    <div class="stats-counter text-2xl sm:text-3xl">50+</div>
+                    <p class="text-gray-600 font-medium text-sm sm:text-base">Produk Apple</p>
+                </div>
+                <div>
+                    <div class="stats-counter text-2xl sm:text-3xl">99%</div>
+                    <p class="text-gray-600 font-medium text-sm sm:text-base">Approval Rate</p>
+                </div>
+                <div>
+                    <div class="stats-counter text-2xl sm:text-3xl">24/7</div>
+                    <p class="text-gray-600 font-medium text-sm sm:text-base">Support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Partners Section -->
+    <section id="partners" class="py-12 sm:py-16 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 sm:mb-12">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Mitra Terpercaya</h2>
+                <p class="text-base sm:text-lg lg:text-xl text-gray-600">Bekerjasama dengan perusahaan terkemuka untuk layanan terbaik</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+                <div class="flex justify-center">
+                    <img src="https://cdnpro.eraspace.com/media/wysiwyg/ibox/Logo_IBOX.png" alt="iBox" class="partner-logo h-16 md:h-20 object-contain">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://east.vc/wp-content/uploads/2025/07/julo-1-1.png" alt="Julo" class="partner-logo h-16 md:h-20 object-contain">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" alt="Shopee" class="partner-logo h-16 md:h-20 object-contain">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/OJK_Logo.png" alt="OJK" class="partner-logo h-16 md:h-20 object-contain">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Products Section (Preview) -->
+    <section class="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 sm:mb-12 lg:mb-16">
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Produk Apple Unggulan</h2>
+                <p class="text-base sm:text-lg lg:text-xl text-gray-600">Dapatkan produk Apple terbaru dengan cicilan 0% yang mudah</p>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4" id="featuredProductsGrid">
+                <!-- Featured products will be loaded here -->
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="produk.html" class="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                    Lihat Semua Produk <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Mengapa Pilih Apple Sale?</h2>
+                <p class="text-xl text-gray-600">Keunggulan yang membuat kami berbeda</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-percentage text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Bunga 0%</h3>
+                    <p class="text-gray-600">Cicilan tanpa bunga untuk semua produk Apple pilihan</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Proses Cepat</h3>
+                    <p class="text-gray-600">Approval dalam 24 jam, langsung bisa bawa pulang</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Aman & Terpercaya</h3>
+                    <p class="text-gray-600">Data pribadi terlindungi dengan enkripsi tingkat bank</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-headset text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Support 24/7</h3>
+                    <p class="text-gray-600">Tim customer service siap membantu kapan saja</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-truck text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Gratis Ongkir</h3>
+                    <p class="text-gray-600">Pengiriman gratis ke seluruh Indonesia</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-medal text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Garansi Resmi</h3>
+                    <p class="text-gray-600">Semua produk bergaransi resmi Apple Indonesia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Apa Kata Pelanggan Kami?</h2>
+                <p class="text-xl text-gray-600">Testimoni dari ribuan pelanggan yang puas</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="testimonial-card p-6 rounded-2xl premium-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Sarah Wijaya</h4>
+                            <p class="text-gray-600 text-sm">Jakarta</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-700">"Proses sangat mudah dan cepat! Dalam 1 hari langsung approved dan iPhone 15 Pro sudah di tangan. Cicilan 0% benar-benar membantu!"</p>
+                </div>
+                
+                <div class="testimonial-card p-6 rounded-2xl premium-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Budi Santoso</h4>
+                            <p class="text-gray-600 text-sm">Surabaya</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-700">"Customer service sangat responsif dan membantu. MacBook Pro yang saya beli kualitasnya original dan garansi resmi. Recommended!"</p>
+                </div>
+                
+                <div class="testimonial-card p-6 rounded-2xl premium-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Maya Putri</h4>
+                            <p class="text-gray-600 text-sm">Bandung</p>
+                        </div>
+                    </div>
+                    <div class="flex mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-700">"Apple Watch Ultra 2 impian akhirnya terwujud! Cicilan ringan dan proses yang transparan. Terima kasih Apple Sale!"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Hubungi Kami</h2>
+                <p class="text-xl text-gray-600">Tim support siap membantu Anda 24/7</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-phone text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Telepon</h3>
+                    <p class="text-gray-600">+62 21 1234 5678</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-envelope text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Email</h3>
+                    <p class="text-gray-600">support@applesale.id</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fab fa-whatsapp text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">WhatsApp</h3>
+                    <p class="text-gray-600">+62 857 9860 3323</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-white text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold">Apple Sale</span>
+                    </div>
+                    <p class="text-gray-300">Platform kredit terpercaya untuk produk Apple dengan cicilan 0% dan proses yang mudah.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Produk</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="produk.html#iphone" class="hover:text-amber-400 transition-colors">iPhone</a></li>
+                        <li><a href="produk.html#macbook" class="hover:text-amber-400 transition-colors">MacBook</a></li>
+                        <li><a href="produk.html#applewatch" class="hover:text-amber-400 transition-colors">Apple Watch</a></li>
+                        <li><a href="produk.html#imac" class="hover:text-amber-400 transition-colors">iMac</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Layanan</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Kredit 0%</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Garansi Resmi</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Support 24/7</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">Gratis Ongkir</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Akun Saya</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="profil.html" class="hover:text-amber-400 transition-colors">Profil Saya</a></li>
+                        <li><a href="checkout.html" class="hover:text-amber-400 transition-colors">Checkout</a></li>
+                        <li><a href="payments.html" class="hover:text-amber-400 transition-colors">Pembayaran</a></li>
+                        <li><a href="riwayat.html" class="hover:text-amber-400 transition-colors">Riwayat Pesanan</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 Apple Sale. Semua hak dilindungi. | Diawasi oleh OJK</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Masuk ke Akun Anda</h2>
+                    <button onclick="closeModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Password</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                        Masuk
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Belum punya akun? 
+                        <button onclick="showRegisterModal()" class="text-amber-600 font-medium hover:underline">Daftar di sini</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Daftar Akun Baru</h2>
+                    <button onclick="closeModal('registerModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Nama Depan</label>
+                            <input type="text" id="firstName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Nama Belakang</label>
+                            <input type="text" id="lastName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" id="registerEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-2">Nomor Telepon</label>
+                        <input type="tel" id="phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">Password</label>
+                        <input type="password" id="registerPassword" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300">
+                        Daftar Sekarang
+                    </button>
+                </form>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Sudah punya akun? 
+                        <button onclick="showLoginModal()" class="text-amber-600 font-medium hover:underline">Masuk di sini</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Profil Saya</h2>
+                    <button onclick="closeModal('profileModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user text-white text-3xl"></i>
+                    </div>
+                    <h3 id="profileName" class="text-xl font-bold"></h3>
+                    <p id="profileEmail" class="text-gray-600"></p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Informasi Akun</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Bergabung:</span>
+                                <p id="joinDate" class="font-medium"></p>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Status:</span>
+                                <p class="font-medium text-green-600">Aktif</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Statistik</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Total Pesanan:</span>
+                                <p id="totalOrders" class="font-medium">0</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Kredit Aktif:</span>
+                                <p id="activeCredit" class="font-medium">Rp 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order History Modal -->
+    <div id="orderHistoryModal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Riwayat Pesanan</h2>
+                    <button onclick="closeModal('orderHistoryModal')" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="orderHistoryContent">
+                    <!-- Order history will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
+            authDomain: "kredit-hp-221a1.firebaseapp.com",
+            projectId: "kredit-hp-221a1",
+            storageBucket: "kredit-hp-221a1.firebasestorage.app",
+            messagingSenderId: "428804203261",
+            appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
+            measurementId: "G-EJW00GWVS9"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        
+        // Global variables
+        let currentUser = null;
+        let selectedProduct = null;
+        let currentStep = 1;
+        let userActivityListener = null;
+        
+        // Featured products data (only showing a few on homepage)
+        const featuredProducts = [
+            {
+                id: 1,
+                name: "iPhone 16",
+                variant: "256GB • Ultramarine",
+                price: 15999000,
+                originalPrice: 17999000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_ultramarine_01_3.jpg&w=3840&q=45",
+                badge: "Terbaru",
+                badgeColor: "bg-blue-500",
+                sold: 2847,
+                rating: 4.9,
+                reviews: 1234,
+                discount: 11
+            },
+            {
+                id: 2,
+                name: "iPhone 16",
+                variant: "128GB • Teal",
+                price: 13999000,
+                originalPrice: 15499000,
+                image: "https://www.mediazone.ma/product/images/16205-G1BKThXu/apple-iphone-16-256go-teal-maroc.webp",
+                badge: "Populer",
+                badgeColor: "bg-teal-500",
+                sold: 5632,
+                rating: 4.8,
+                reviews: 2156,
+                discount: 10
+            },
+            {
+                id: 3,
+                name: "iPhone 15",
+                variant: "256GB • Black",
+                price: 13999000,
+                originalPrice: 15999000,
+                image: "https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_iphone_15_plus_black_1_1.jpg&w=3840&q=45",
+                badge: "Best Seller",
+                badgeColor: "bg-red-500",
+                sold: 8945,
+                rating: 4.9,
+                reviews: 3421,
+                discount: 13
+            },
+            {
+                id: 5,
+                name: "iPhone 16 Pro",
+                variant: "256GB • Natural Titanium",
+                price: 19999000,
+                originalPrice: 22999000,
+                image: "https://www.apple.com/newsroom/images/2024/09/apple-debuts-iphone-16-pro-and-iphone-16-pro-max/article/Apple-iPhone-16-Pro-hero-geo-240909_inline.jpg.large.jpg",
+                badge: "Pro",
+                badgeColor: "bg-purple-600",
+                sold: 1567,
+                rating: 4.9,
+                reviews: 789,
+                discount: 13
+            },
+            {
+                id: 14,
+                name: "MacBook Pro M2",
+                variant: "13-inch • 256GB",
+                price: 18999000,
+                originalPrice: 21999000,
+                image: "https://images-cdn.ubuy.co.id/650188aee584193d8350a66b-2022-apple-macbook-pro-laptop-with-m2.jpg",
+                badge: "Laptop",
+                badgeColor: "bg-gray-700",
+                sold: 1234,
+                rating: 4.8,
+                reviews: 567,
+                discount: 14
+            }
+        ];
+        
+        // Loading functions
+        function showLoading(title = 'Memuat...', message = 'Mohon tunggu sebentar', progress = 0) {
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function updateLoadingProgress(progress, title, message) {
+            document.getElementById('progressBar').style.width = progress + '%';
+            if (title) document.getElementById('loadingTitle').textContent = title;
+            if (message) document.getElementById('loadingMessage').textContent = message;
+        }
+        
+        // WhatsApp Chat function
+        function openWhatsAppChat() {
+            const phoneNumber = '6285798603323';
+            const message = encodeURIComponent('Halo! Saya tertarik dengan produk Apple di Apple Sale. Bisakah Anda membantu saya?');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Initialize app with loading
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoading('Memuat Aplikasi...', 'Menyiapkan produk dan layanan', 0);
+            
+            // Simulate loading steps
+            setTimeout(() => {
+                updateLoadingProgress(25, 'Memuat Produk...', 'Mengambil data produk terbaru');
+            }, 500);
+            
+            setTimeout(() => {
+                updateLoadingProgress(50, 'Menyiapkan Firebase...', 'Menghubungkan ke database');
+                loadFeaturedProducts();
+            }, 1000);
+            
+            setTimeout(() => {
+                updateLoadingProgress(75, 'Memeriksa Sesi...', 'Memverifikasi login pengguna');
+                checkUserSession();
+            }, 1500);
+            
+            setTimeout(() => {
+                updateLoadingProgress(100, 'Selesai!', 'Aplikasi siap digunakan');
+                setTimeout(hideLoading, 500);
+            }, 2000);
+        });
+        
+        // Load featured products
+        function loadFeaturedProducts() {
+            const featuredProductsGrid = document.getElementById('featuredProductsGrid');
+            featuredProductsGrid.innerHTML = '';
+            featuredProducts.forEach(product => {
+                const monthlyPayment = Math.round(product.price / 24);
+                const productCard = `
+                    <div class="product-card bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-lg transition-all duration-300 overflow-hidden">
+                        <div class="relative">
+                            <div class="w-full h-48 sm:h-56 bg-gray-50 overflow-hidden">
+                                <img src="${product.image}" alt="${product.name}" class="w-full h-full object-contain hover:scale-105 transition-transform duration-300" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full bg-gray-100 flex items-center justify-center text-4xl" style="display:none;">
+                                    📱
+                                </div>
+                            </div>
+                            <div class="absolute top-2 left-2 ${product.badgeColor} text-white px-2 py-1 rounded text-xs font-bold">
+                                ${product.badge}
+                            </div>
+                            ${product.discount ? `<div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">-${product.discount}%</div>` : ''}
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium mb-1 line-clamp-2 h-10">${product.name}</h3>
+                            <p class="text-xs text-gray-500 mb-2">${product.variant}</p>
+                            
+                            <div class="mb-2">
+                                <div class="flex items-center space-x-1 mb-1">
+                                    <span class="text-lg font-bold text-orange-600">Rp${product.price.toLocaleString('id-ID')}</span>
+                                </div>
+                                ${product.originalPrice ? `<span class="text-xs text-gray-400 line-through">Rp${product.originalPrice.toLocaleString('id-ID')}</span>` : ''}
+                                <div class="text-xs text-gray-600 mt-1">Cicilan: Rp${monthlyPayment.toLocaleString('id-ID')}/bln</div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                <div class="flex items-center space-x-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <span class="ml-1">${product.rating}</span>
+                                    </div>
+                                    <span>|</span>
+                                    <span>Terjual ${product.sold.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="buyProduct(${product.id})" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded text-sm font-medium transition-colors duration-200">
+                                Beli Sekarang
+                            </button>
+                        </div>
+                    </div>
+                `;
+                featuredProductsGrid.innerHTML += productCard;
+            });
+        }
+        
+        // Check user session with Firebase Auth
+        function checkUserSession() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    currentUser = {
+                        id: user.uid,
+                        email: user.email,
+                        firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
+                        lastName: user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+                        joinDate: user.metadata.creationTime
+                    };
+                    
+                    showUserProfile();
+                    
+                    // Load user data from Firestore
+                    await loadUserData(user.uid);
+                    
+                    // Setup real-time user activity tracking
+                    setupUserActivityTracking();
+                } else {
+                    // User is signed out
+                    currentUser = null;
+                    hideUserProfile();
+                    
+                    // Remove activity listener if exists
+                    if (userActivityListener) {
+                        userActivityListener();
+                        userActivityListener = null;
+                    }
+                }
+            });
+        }
+        
+        // Setup real-time user activity tracking
+        function setupUserActivityTracking() {
+            if (!currentUser) return;
+            
+            const userRef = db.collection('users').doc(currentUser.id);
+            
+            // Update last activity timestamp
+            const updateActivity = () => {
+                userRef.update({
+                    lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+                    isOnline: true
+                }).catch(error => {
+                    console.error('Error updating activity:', error);
+                });
+            };
+            
+            // Update activity immediately
+            updateActivity();
+            
+            // Update activity every 30 seconds
+            const activityInterval = setInterval(updateActivity, 30000);
+            
+            // Listen for user status changes
+            userActivityListener = db.collection('userStatus')
+                .doc(currentUser.id)
+                .onSnapshot(doc => {
+                    const status = doc.data();
+                    if (status) {
+                        updateUserStatusIndicator(status.status);
+                    }
+                });
+            
+            // Update status to online
+            db.collection('userStatus').doc(currentUser.id).set({
+                userId: currentUser.id,
+                status: 'online',
+                lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Handle page visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // User switched tab or minimized window
+                    db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'away',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // User is back on the page
+                    db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'online',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    updateActivity();
+                }
+            });
+            
+            // Handle beforeunload (user closing page)
+            window.addEventListener('beforeunload', () => {
+                db.collection('userStatus').doc(currentUser.id).update({
+                    status: 'offline',
+                    lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                clearInterval(activityInterval);
+            });
+        }
+        
+        // Update user status indicator
+        function updateUserStatusIndicator(status) {
+            const indicator = document.getElementById('userStatusIndicator');
+            if (!indicator) return;
+            
+            switch (status) {
+                case 'online':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white';
+                    break;
+                case 'away':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white';
+                    break;
+                case 'offline':
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full border-2 border-white';
+                    break;
+                default:
+                    indicator.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full border-2 border-white';
+            }
+        }
+        
+        // Load user data from Firestore
+        async function loadUserData(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentUser = { ...currentUser, ...userData };
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+        
+        // Show user profile in navigation
+        function showUserProfile() {
+            document.getElementById('guestButtons').classList.add('hidden');
+            document.getElementById('userProfile').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+        }
+        
+        // Hide user profile in navigation
+        function hideUserProfile() {
+            document.getElementById('guestButtons').classList.remove('hidden');
+            document.getElementById('userProfile').classList.add('hidden');
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function showLoginModal() {
+            closeModal('registerModal');
+            showModal('loginModal');
+        }
+        
+        function showRegisterModal() {
+            closeModal('loginModal');
+            showModal('registerModal');
+        }
+        
+        function showProfileModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('profileName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('joinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('id-ID');
+            
+            const orders = JSON.parse(localStorage.getItem('userOrders') || '[]');
+            const userOrders = orders.filter(order => order.userId === currentUser.id);
+            document.getElementById('totalOrders').textContent = userOrders.length;
+            
+            const activeCredit = userOrders.reduce((total, order) => {
+                if (order.status === 'active') {
+                    return total + (order.totalPrice - order.downPayment);
+                }
+                return total;
+            }, 0);
+            document.getElementById('activeCredit').textContent = 'Rp ' + activeCredit.toLocaleString('id-ID');
+            
+            showModal('profileModal');
+        }
+        
+        async function showOrderHistory() {
+            if (!currentUser) return;
+            
+            showLoading('Memuat Riwayat...', 'Mengambil data pesanan', 30);
+            
+            try {
+                const ordersSnapshot = await db.collection('orders')
+                    .where('userId', '==', currentUser.id)
+                    .orderBy('orderDate', 'desc')
+                    .get();
+                
+                const userOrders = [];
+                ordersSnapshot.forEach(doc => {
+                    userOrders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                updateLoadingProgress(80, 'Menyiapkan Tampilan...', 'Memformat data pesanan');
+                
+                const orderHistoryContent = document.getElementById('orderHistoryContent');
+                
+                if (userOrders.length === 0) {
+                    orderHistoryContent.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-shopping-cart text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500">Belum ada pesanan</p>
+                        </div>
+                    `;
+                } else {
+                    orderHistoryContent.innerHTML = userOrders.map(order => `
+                        <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="font-bold">${order.productName}</h4>
+                                    <p class="text-sm text-gray-600">Order #${order.id}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-sm font-medium ${
+                                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    order.status === 'active' ? 'bg-green-100 text-green-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }">
+                                    ${order.status === 'pending' ? 'Menunggu' : order.status === 'active' ? 'Aktif' : 'Selesai'}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">Total:</span>
+                                    <p class="font-medium">Rp ${order.totalPrice.toLocaleString('id-ID')}</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Cicilan:</span>
+                                    <p class="font-medium">Rp ${order.monthlyPayment.toLocaleString('id-ID')}/bln</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Tenor:</span>
+                                    <p class="font-medium">${order.tenor} bulan</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Tanggal:</span>
+                                    <p class="font-medium">${order.orderDate ? new Date(order.orderDate.toDate()).toLocaleDateString('id-ID') : 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                setTimeout(() => {
+                    hideLoading();
+                    showModal('orderHistoryModal');
+                }, 500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Error loading order history:', error);
+                showNotification('Gagal memuat riwayat pesanan', 'error');
+            }
+        }
+        
+        // Toggle user menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+        }
+        
+        // Handle login with Firebase Auth
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoading('Masuk ke Akun...', 'Memverifikasi kredensial', 30);
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                updateLoadingProgress(70, 'Berhasil!', 'Menyiapkan dashboard');
+                
+                setTimeout(() => {
+                    hideLoading();
+                    closeModal('loginModal');
+                    showNotification('Berhasil masuk!', 'success');
+                    
+                    // Clear form
+                    document.getElementById('loginForm').reset();
+                }, 1000);
+                
+            } catch (error) {
+                hideLoading();
+                let errorMessage = 'Terjadi kesalahan saat masuk';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'Email tidak terdaftar';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Password salah';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Format email tidak valid';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Terlalu banyak percobaan. Coba lagi nanti';
+                        break;
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        // Handle register with Firebase Auth
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            showLoading('Membuat Akun...', 'Mendaftarkan pengguna baru', 20);
+            
+            try {
+                // Create user with Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                updateLoadingProgress(50, 'Menyimpan Data...', 'Menyimpan informasi profil');
+                
+                // Update user profile
+                await user.updateProfile({
+                    displayName: `${firstName} ${lastName}`
+                });
+                
+                // Save additional user data to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    joinDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+                    isOnline: true,
+                    profileCompleted: false,
+                    ktpUploaded: false,
+                    ktpVerified: false
+                });
+                
+                // Create user status document
+                await db.collection('userStatus').doc(user.uid).set({
+                    userId: user.uid,
+                    status: 'online',
+                    lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                updateLoadingProgress(90, 'Berhasil!', 'Akun berhasil dibuat');
+                
+                setTimeout(() => {
+                    hideLoading();
+                    closeModal('registerModal');
+                    showNotification('Pendaftaran berhasil! Silakan lengkapi profil Anda.', 'success');
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    
+                    // Redirect to profile page to complete profile
+                    setTimeout(() => {
+                        window.location.href = 'profil.html';
+                    }, 1500);
+                }, 1000);
+                
+            } catch (error) {
+                hideLoading();
+                let errorMessage = 'Terjadi kesalahan saat mendaftar';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Email sudah terdaftar';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password terlalu lemah (minimal 6 karakter)';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Format email tidak valid';
+                        break;
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+        
+        // Logout with Firebase Auth
+        async function logout() {
+            showLoading('Keluar...', 'Mengakhiri sesi', 50);
+            
+            try {
+                // Update user status to offline
+                if (currentUser) {
+                    await db.collection('userStatus').doc(currentUser.id).update({
+                        status: 'offline',
+                        lastChanged: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                await auth.signOut();
+                
+                setTimeout(() => {
+                    hideLoading();
+                    showNotification('Berhasil keluar!', 'info');
+                }, 500);
+                
+            } catch (error) {
+                hideLoading();
+                showNotification('Terjadi kesalahan saat keluar', 'error');
+            }
+        }
+        
+        // Buy product
+        function buyProduct(productId) {
+            if (!currentUser) {
+                showNotification('Silakan login terlebih dahulu!', 'error');
+                showLoginModal();
+                return;
+            }
+            
+            // Check if profile is completed
+            if (!currentUser.profileCompleted) {
+                showNotification('Silakan lengkapi profil Anda terlebih dahulu!', 'error');
+                setTimeout(() => {
+                    window.location.href = 'profil.html';
+                }, 1000);
+                return;
+            }
+            
+            // Check if KTP is uploaded and verified
+            if (!currentUser.ktpUploaded || !currentUser.ktpVerified) {
+                showNotification('Silakan upload KTP/Paspor untuk verifikasi!', 'error');
+                setTimeout(() => {
+                    window.location.href = 'profil.html';
+                }, 1000);
+                return;
+            }
+            
+            // Redirect to checkout page
+            window.location.href = 'checkout.html?productId=' + productId;
+        }
+        
+        // Utility functions
+        function toggleMobileMenu() {
+            // Mobile menu functionality can be added here
+            showNotification('Menu mobile akan segera tersedia!', 'info');
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (!userProfile.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
