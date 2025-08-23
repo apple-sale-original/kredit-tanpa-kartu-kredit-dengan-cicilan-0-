@@ -497,6 +497,20 @@
                                             <li>• Hindari pantulan cahaya pada dokumen</li>
                                         </ul>
                                     </div>
+                                    
+                                    <!-- Admin Verification Link -->
+                                    <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-user-shield text-amber-600 mr-3"></i>
+                                            <div>
+                                                <p class="text-sm font-medium text-amber-800">Butuh bantuan verifikasi?</p>
+                                                <p class="text-xs text-amber-700">Hubungi admin untuk verifikasi manual</p>
+                                            </div>
+                                        </div>
+                                        <a href="https://apple-sale-original.github.io/login-admin/" target="_blank" class="inline-block mt-3 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                            <i class="fas fa-external-link-alt mr-2"></i>Login Admin
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -712,7 +726,7 @@
         function loadPersonalInfoForm() {
             document.getElementById('firstName').value = currentUser.firstName || '';
             document.getElementById('lastName').value = currentUser.lastName || '';
-            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('email').value = currentUser.email || currentUser.email;
             document.getElementById('phone').value = currentUser.phone || '';
             document.getElementById('birthDate').value = currentUser.birthDate || '';
             document.getElementById('gender').value = currentUser.gender || '';
