@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -217,6 +218,11 @@
         .verification-badge.pending {
             background-color: #fef3c7;
             color: #92400e;
+        }
+        
+        .verification-badge.rejected {
+            background-color: #fee2e2;
+            color: #991b1b;
         }
         
         .verification-badge.not-uploaded {
@@ -760,6 +766,7 @@
             apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
             authDomain: "kredit-hp-221a1.firebaseapp.com",
             projectId: "kredit-hp-221a1",
+            storageBucket: "kredit-hp-221a1.firebasestorage.app",
             messagingSenderId: "428804203261",
             appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
             measurementId: "G-EJW00GWVS9"
@@ -769,15 +776,13 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
         
         // Global variables
         let currentUser = null;
         let selectedFile = null;
         let uploadedFileUrl = null;
         let selectedProfileImageFile = null;
-        
-        // Imgur API configuration - Ganti dengan Client ID Imgur Anda
-        const IMGUR_CLIENT_ID = 'YOUR_IMGUR_CLIENT_ID'; // Ganti dengan Client ID Imgur Anda
         
         // Loading functions
         function showLoading(title = 'Memuat...', message = 'Mohon tunggu sebentar') {
@@ -899,6 +904,9 @@
             if (currentUser.ktpVerified) {
                 ktpStatus.textContent = 'Terverifikasi';
                 ktpStatus.className = 'verification-badge verified';
+            } else if (currentUser.ktpRejected) {
+                ktpStatus.textContent = 'Ditolak';
+                ktpStatus.className = 'verification-badge rejected';
             } else if (currentUser.ktpUploaded) {
                 ktpStatus.textContent = 'Menunggu Verifikasi';
                 ktpStatus.className = 'verification-badge pending';
@@ -942,6 +950,15 @@
                 if (currentUser.ktpUrl) {
                     showUploadedKTP(currentUser.ktpUrl);
                 }
+            } else if (currentUser.ktpRejected) {
+                verificationBadge.textContent = 'Ditolak';
+                verificationBadge.className = 'verification-badge rejected';
+                verificationMessage.textContent = 'Dokumen Anda ditolak oleh admin. Alasan: ' + (currentUser.ktpRejectionReason || 'Tidak ada alasan yang diberikan.');
+                
+                // Show uploaded KTP if available
+                if (currentUser.ktpUrl) {
+                    showUploadedKTP(currentUser.ktpUrl);
+                }
             } else if (currentUser.ktpUploaded) {
                 verificationBadge.textContent = 'Menunggu Verifikasi';
                 verificationBadge.className = 'verification-badge pending';
@@ -976,8 +993,17 @@
             fileName.textContent = filename;
             
             removeButton.classList.remove('hidden');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Dokumen Telah Diupload';
+            
+            if (currentUser.ktpVerified) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Dokumen Telah Terverifikasi';
+            } else if (currentUser.ktpRejected) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload Ulang Dokumen';
+            } else {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Dokumen Telah Diupload';
+            }
         }
         
         // Handle profile image selection
@@ -1011,53 +1037,50 @@
             uploadProfileImage();
         }
         
-        // Upload profile image to Imgur
+        // Upload profile image to Firebase Storage
         async function uploadProfileImage() {
             if (!selectedProfileImageFile) return;
             
             showLoading('Mengupload Foto Profil...', 'Mohon tunggu sebentar');
             
             try {
-                // Create form data for Imgur upload
-                const formData = new FormData();
-                formData.append('image', selectedProfileImageFile);
-                formData.append('type', 'file');
-                formData.append('title', `Profile_${currentUser.id}`);
+                // Create a storage reference
+                const storageRef = storage.ref();
+                const profileImageRef = storageRef.child(`profile_images/${currentUser.id}/${Date.now()}_${selectedProfileImageFile.name}`);
                 
-                // Upload to Imgur
-                const response = await fetch('https://api.imgur.com/3/image', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`
-                    },
-                    body: formData
+                // Upload file
+                const snapshot = await profileImageRef.put(selectedProfileImageFile);
+                
+                // Get download URL
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                
+                // Update user data in Firestore
+                await db.collection('users').doc(currentUser.id).update({
+                    profileImageUrl: downloadURL,
+                    profileImageUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Upload failed');
-                }
+                // Update local user data
+                currentUser.profileImageUrl = downloadURL;
                 
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Update user data in Firestore
-                    await db.collection('users').doc(currentUser.id).update({
-                        profileImageUrl: result.data.link,
-                        profileImageUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // Update local user data
-                    currentUser.profileImageUrl = result.data.link;
-                    
-                    hideLoading();
-                    showNotification('Foto profil berhasil diperbarui', 'success');
-                } else {
-                    throw new Error('Upload failed');
-                }
+                hideLoading();
+                showNotification('Foto profil berhasil diperbarui', 'success');
             } catch (error) {
                 console.error('Error uploading profile image:', error);
                 hideLoading();
-                showNotification('Gagal mengupload foto profil', 'error');
+                
+                let errorMessage = 'Gagal mengupload foto profil. ';
+                if (error.code === 'storage/unauthorized') {
+                    errorMessage += 'Anda tidak memiliki izin untuk mengupload file.';
+                } else if (error.code === 'storage/canceled') {
+                    errorMessage += 'Upload dibatalkan.';
+                } else if (error.code === 'storage/unknown') {
+                    errorMessage += 'Terjadi kesalahan yang tidak diketahui.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showNotification(errorMessage, 'error');
             }
         }
         
@@ -1180,6 +1203,9 @@
             if (currentUser.ktpVerified) {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Dokumen Telah Terverifikasi';
+            } else if (currentUser.ktpRejected) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload Ulang Dokumen';
             } else {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Upload Dokumen';
@@ -1201,7 +1227,7 @@
             input.click();
         }
         
-        // Submit verification - Upload to Imgur
+        // Submit verification - Upload to Firebase Storage
         async function submitVerification() {
             if (!selectedFile) {
                 showNotification('Silakan pilih file KTP/Paspor terlebih dahulu', 'error');
@@ -1218,79 +1244,79 @@
                 
                 uploadProgressContainer.classList.remove('hidden');
                 
-                // Create form data for Imgur upload
-                const formData = new FormData();
-                formData.append('image', selectedFile);
-                formData.append('type', 'file');
-                formData.append('title', `KTP_${currentUser.id}`);
-                formData.append('description', `KTP verification for user ${currentUser.id}`);
+                // Create a storage reference
+                const storageRef = storage.ref();
+                const ktpRef = storageRef.child(`ktp_documents/${currentUser.id}/${Date.now()}_${selectedFile.name}`);
                 
-                // Simulate progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += 10;
-                    if (progress > 90) progress = 90;
-                    uploadProgressBar.style.width = progress + '%';
-                    uploadPercent.textContent = progress + '%';
-                }, 200);
+                // Upload file with progress tracking
+                const uploadTask = ktpRef.put(selectedFile);
                 
-                // Upload to Imgur
-                const response = await fetch('https://api.imgur.com/3/image', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`
-                    },
-                    body: formData
-                });
-                
-                clearInterval(progressInterval);
-                
-                // Complete progress
-                uploadProgressBar.style.width = '100%';
-                uploadPercent.textContent = '100%';
-                
-                if (!response.ok) {
-                    throw new Error('Upload failed');
-                }
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    uploadedFileUrl = result.data.link;
-                    
-                    // Update user data in Firestore - only upload status, not verification
-                    await db.collection('users').doc(currentUser.id).update({
-                        ktpUploaded: true,
-                        ktpUrl: result.data.link,
-                        ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
-                        // Note: ktpVerified will be set by admin in dashboard
-                    });
-                    
-                    // Update local user data
-                    currentUser.ktpUploaded = true;
-                    currentUser.ktpUrl = result.data.link;
-                    currentUser.ktpUploadDate = new Date();
-                    // Note: ktpVerified remains false until admin approves
-                    
-                    // Update UI
-                    updateProfileStatus();
-                    loadVerificationStatus();
-                    
-                    hideLoading();
-                    showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
-                    
-                    // Disable submit button
-                    document.getElementById('submitVerification').disabled = true;
-                    document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
-                    
-                    // Hide upload progress
-                    uploadProgressContainer.classList.add('hidden');
-                    
-                    // Check if profile is completed
-                    checkProfileCompletion();
-                } else {
-                    throw new Error('Upload failed');
-                }
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        uploadProgressBar.style.width = progress + '%';
+                        uploadPercent.textContent = Math.round(progress) + '%';
+                    }, 
+                    (error) => {
+                        // Handle unsuccessful uploads
+                        console.error('Error uploading KTP:', error);
+                        hideLoading();
+                        
+                        let errorMessage = 'Gagal mengupload dokumen. ';
+                        if (error.code === 'storage/unauthorized') {
+                            errorMessage += 'Anda tidak memiliki izin untuk mengupload file.';
+                        } else if (error.code === 'storage/canceled') {
+                            errorMessage += 'Upload dibatalkan.';
+                        } else if (error.code === 'storage/unknown') {
+                            errorMessage += 'Terjadi kesalahan yang tidak diketahui.';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        
+                        showNotification(errorMessage, 'error');
+                        uploadProgressContainer.classList.add('hidden');
+                    }, 
+                    async () => {
+                        // Handle successful uploads on complete
+                        // Get download URL
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        
+                        // Update user data in Firestore
+                        await db.collection('users').doc(currentUser.id).update({
+                            ktpUploaded: true,
+                            ktpRejected: false, // Reset rejected status when re-uploading
+                            ktpUrl: downloadURL,
+                            ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                            // Note: ktpVerified will be set by admin in dashboard
+                        });
+                        
+                        // Update local user data
+                        currentUser.ktpUploaded = true;
+                        currentUser.ktpRejected = false;
+                        currentUser.ktpUrl = downloadURL;
+                        currentUser.ktpUploadDate = new Date();
+                        // Note: ktpVerified remains false until admin approves
+                        
+                        // Update UI
+                        updateProfileStatus();
+                        loadVerificationStatus();
+                        
+                        hideLoading();
+                        showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
+                        
+                        // Disable submit button
+                        document.getElementById('submitVerification').disabled = true;
+                        document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
+                        
+                        // Hide upload progress
+                        uploadProgressContainer.classList.add('hidden');
+                        
+                        // Check if profile is completed
+                        checkProfileCompletion();
+                    }
+                );
             } catch (error) {
                 console.error('Error submitting verification:', error);
                 hideLoading();
