@@ -225,6 +225,129 @@
             color: #991b1b;
         }
         
+        .profile-image-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-image-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(135deg, #ee4d2d, #ff6533);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .profile-image-upload:hover {
+            transform: scale(1.1);
+        }
+        
+        .profile-image-upload i {
+            color: white;
+            font-size: 16px;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .mobile-menu.open {
+            right: 0;
+        }
+        
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .mobile-menu-nav {
+            padding: 1rem 0;
+        }
+        
+        .mobile-menu-nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-menu-nav a:hover {
+            background-color: #f3f4f6;
+            color: #ee4d2d;
+        }
+        
+        .mobile-menu-nav a.active {
+            color: #ee4d2d;
+            background-color: #fffbeb;
+        }
+        
+        .mobile-menu-divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 0.5rem 0;
+        }
+        
         @media (max-width: 640px) {
             .whatsapp-chat {
                 width: 50px;
@@ -255,6 +378,39 @@
     <!-- Notification -->
     <div id="notification" class="notification">
         <span id="notificationText"></span>
+    </div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu">
+        <div class="mobile-menu-header">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-mobile-alt text-white text-base"></i>
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Apple Sale</span>
+            </div>
+            <button id="mobileMenuClose" class="mobile-menu-close" onclick="toggleMobileMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="mobile-menu-nav">
+            <a href="index.html">Beranda</a>
+            <a href="produk.html">Produk</a>
+            <a href="index.html#features">Fitur</a>
+            <a href="index.html#partners">Partner</a>
+            <a href="index.html#testimonials">Testimoni</a>
+            <a href="index.html#contact">Kontak</a>
+            <div class="mobile-menu-divider"></div>
+            <a href="checkout.html">Checkout</a>
+            <a href="payments.html">Pembayaran</a>
+            <a href="riwayat.html">Riwayat Pesanan</a>
+            <a href="profil.html" class="active">Profil</a>
+            <div class="mobile-menu-divider"></div>
+            <a href="#" onclick="logout()">Keluar</a>
+        </nav>
     </div>
     
     <!-- WhatsApp Chat Button -->
@@ -340,8 +496,12 @@
                 <!-- Profile Header -->
                 <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white">
                     <div class="flex flex-col md:flex-row items-center">
-                        <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 md:mb-0 md:mr-6">
-                            <i class="fas fa-user text-white text-4xl"></i>
+                        <div class="profile-image-container mb-4 md:mb-0 md:mr-6">
+                            <img id="profileImage" class="profile-image" src="https://via.placeholder.com/120" alt="Profile Picture">
+                            <div class="profile-image-upload" onclick="document.getElementById('profileImageInput').click()">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="profileImageInput" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)">
+                            </div>
                         </div>
                         <div class="text-center md:text-left">
                             <h2 id="profileFullName" class="text-2xl font-bold mb-1">Loading...</h2>
@@ -431,7 +591,7 @@
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-sm text-blue-700">
-                                            Pastikan dokumen yang Anda upload jelas, tidak blur, dan semua informasi terbaca dengan baik. Proses verifikasi memakan waktu 1-24 jam.
+                                            Pastikan dokumen yang Anda upload jelas, tidak blur, dan semua informasi terbaca dengan baik. Status verifikasi akan ditentukan oleh admin.
                                         </p>
                                     </div>
                                 </div>
@@ -498,18 +658,15 @@
                                         </ul>
                                     </div>
                                     
-                                    <!-- Admin Verification Link -->
-                                    <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <!-- Admin Verification Link - Removed for regular users -->
+                                    <div class="mt-6 p-4 bg-gray-100 border border-gray-200 rounded-lg">
                                         <div class="flex items-center">
-                                            <i class="fas fa-user-shield text-amber-600 mr-3"></i>
+                                            <i class="fas fa-info-circle text-gray-600 mr-3"></i>
                                             <div>
-                                                <p class="text-sm font-medium text-amber-800">Butuh bantuan verifikasi?</p>
-                                                <p class="text-xs text-amber-700">Hubungi admin untuk verifikasi manual</p>
+                                                <p class="text-sm font-medium text-gray-800">Informasi Verifikasi</p>
+                                                <p class="text-xs text-gray-700">Status verifikasi akan ditentukan oleh admin setelah dokumen diupload</p>
                                             </div>
                                         </div>
-                                        <a href="https://apple-sale-original.github.io/login-admin/" target="_blank" class="inline-block mt-3 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                                            <i class="fas fa-external-link-alt mr-2"></i>Login Admin
-                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -517,7 +674,7 @@
                         
                         <div class="flex justify-end">
                             <button id="submitVerification" onclick="submitVerification()" class="bg-gradient-to-r from-amber-400 to-yellow-500 text-black px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                Kirim untuk Verifikasi
+                                Upload Dokumen
                             </button>
                         </div>
                     </div>
@@ -620,6 +777,7 @@
         let currentUser = null;
         let selectedFile = null;
         let uploadedFileUrl = null;
+        let selectedProfileImageFile = null;
         
         // Loading functions
         function showLoading(title = 'Memuat...', message = 'Mohon tunggu sebentar') {
@@ -638,6 +796,15 @@
             const message = encodeURIComponent('Halo! Saya butuh bantuan dengan verifikasi KTP saya.');
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
             window.open(whatsappUrl, '_blank');
+        }
+        
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            
+            mobileMenu.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
         }
         
         // Initialize app
@@ -679,6 +846,11 @@
                     document.getElementById('profileFullName').textContent = 
                         `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'User';
                     document.getElementById('profileEmail').textContent = userData.email || currentUser.email;
+                    
+                    // Load profile image if exists
+                    if (userData.profileImageUrl) {
+                        document.getElementById('profileImage').src = userData.profileImageUrl;
+                    }
                     
                     // Update status badges
                     updateProfileStatus();
@@ -749,7 +921,7 @@
             if (currentUser.ktpVerified) {
                 verificationBadge.textContent = 'Terverifikasi';
                 verificationBadge.className = 'verification-badge verified';
-                verificationMessage.textContent = 'Dokumen Anda telah berhasil diverifikasi pada ' + 
+                verificationMessage.textContent = 'Dokumen Anda telah berhasil diverifikasi oleh admin pada ' + 
                     (currentUser.ktpVerifiedDate ? new Date(currentUser.ktpVerifiedDate.toDate()).toLocaleDateString('id-ID') : 'tanggal tidak diketahui') + '.';
                 
                 // Show uploaded KTP if available
@@ -759,7 +931,7 @@
             } else if (currentUser.ktpUploaded) {
                 verificationBadge.textContent = 'Menunggu Verifikasi';
                 verificationBadge.className = 'verification-badge pending';
-                verificationMessage.textContent = 'Dokumen Anda sedang dalam proses verifikasi. Proses ini memakan waktu 1-24 jam.';
+                verificationMessage.textContent = 'Dokumen Anda telah diupload dan menunggu verifikasi dari admin.';
                 
                 // Show uploaded KTP
                 if (currentUser.ktpUrl) {
@@ -792,6 +964,77 @@
             removeButton.classList.remove('hidden');
             submitButton.disabled = true;
             submitButton.textContent = 'Dokumen Telah Diupload';
+        }
+        
+        // Handle profile image selection
+        function handleProfileImageSelect(e) {
+            const file = e.target.files[0];
+            
+            if (!file) return;
+            
+            // Check file type
+            if (!file.type.match('image.*')) {
+                showNotification('Silakan pilih file gambar (JPG, PNG)', 'error');
+                return;
+            }
+            
+            // Check file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('Ukuran file terlalu besar. Maksimal 2MB', 'error');
+                return;
+            }
+            
+            selectedProfileImageFile = file;
+            
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profileImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            // Upload image
+            uploadProfileImage();
+        }
+        
+        // Upload profile image
+        async function uploadProfileImage() {
+            if (!selectedProfileImageFile) return;
+            
+            showLoading('Mengupload Foto Profil...', 'Mohon tunggu sebentar');
+            
+            try {
+                // Create a storage reference
+                const storageRef = storage.ref();
+                const fileName = `profile/${currentUser.id}_${Date.now()}_${selectedProfileImageFile.name}`;
+                const profileImageRef = storageRef.child(fileName);
+                
+                // Upload file
+                const uploadTask = profileImageRef.put(selectedProfileImageFile);
+                
+                // Wait for upload to complete
+                await uploadTask;
+                
+                // Get download URL
+                const downloadURL = await profileImageRef.getDownloadURL();
+                
+                // Update user data in Firestore
+                await db.collection('users').doc(currentUser.id).update({
+                    profileImageUrl: downloadURL,
+                    profileImageUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update local user data
+                currentUser.profileImageUrl = downloadURL;
+                
+                hideLoading();
+                showNotification('Foto profil berhasil diperbarui', 'success');
+                
+            } catch (error) {
+                console.error('Error uploading profile image:', error);
+                hideLoading();
+                showNotification('Gagal mengupload foto profil', 'error');
+            }
         }
         
         // Setup drag and drop
@@ -868,7 +1111,7 @@
             
             // Enable submit button
             document.getElementById('submitVerification').disabled = false;
-            document.getElementById('submitVerification').textContent = 'Kirim untuk Verifikasi';
+            document.getElementById('submitVerification').textContent = 'Upload Dokumen';
         }
         
         // Preview file
@@ -915,7 +1158,7 @@
                 submitButton.textContent = 'Dokumen Telah Terverifikasi';
             } else {
                 submitButton.disabled = true;
-                submitButton.textContent = 'Kirim untuk Verifikasi';
+                submitButton.textContent = 'Upload Dokumen';
             }
         }
         
@@ -934,7 +1177,7 @@
             input.click();
         }
         
-        // Submit verification
+        // Submit verification - Modified to upload to hosting only
         async function submitVerification() {
             if (!selectedFile) {
                 showNotification('Silakan pilih file KTP/Paspor terlebih dahulu', 'error');
@@ -979,28 +1222,30 @@
                         uploadTask.snapshot.ref.getDownloadURL().then(async (downloadURL) => {
                             uploadedFileUrl = downloadURL;
                             
-                            // Update user data in Firestore
+                            // Update user data in Firestore - only upload status, not verification
                             await db.collection('users').doc(currentUser.id).update({
                                 ktpUploaded: true,
                                 ktpUrl: downloadURL,
                                 ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                                // Note: ktpVerified will be set by admin in dashboard
                             });
                             
                             // Update local user data
                             currentUser.ktpUploaded = true;
                             currentUser.ktpUrl = downloadURL;
                             currentUser.ktpUploadDate = new Date();
+                            // Note: ktpVerified remains false until admin approves
                             
                             // Update UI
                             updateProfileStatus();
                             loadVerificationStatus();
                             
                             hideLoading();
-                            showNotification('Dokumen berhasil diupload dan menunggu verifikasi', 'success');
+                            showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
                             
                             // Disable submit button
                             document.getElementById('submitVerification').disabled = true;
-                            document.getElementById('submitVerification').textContent = 'Menunggu Verifikasi';
+                            document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
                             
                             // Hide upload progress
                             uploadProgressContainer.classList.add('hidden');
