@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -218,11 +218,6 @@
         .verification-badge.pending {
             background-color: #fef3c7;
             color: #92400e;
-        }
-        
-        .verification-badge.rejected {
-            background-color: #fee2e2;
-            color: #991b1b;
         }
         
         .verification-badge.not-uploaded {
@@ -766,7 +761,6 @@
             apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
             authDomain: "kredit-hp-221a1.firebaseapp.com",
             projectId: "kredit-hp-221a1",
-            storageBucket: "kredit-hp-221a1.firebasestorage.app",
             messagingSenderId: "428804203261",
             appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
             measurementId: "G-EJW00GWVS9"
@@ -776,7 +770,11 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
+        
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://entzuqjzurwyqzpqhzvw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudHp1cWp6dXJ3eXF6cHFoenZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5OTE4MTEsImV4cCI6MjA3MTU2NzgxMX0.UX7HSSablVXOTkwMj7rkPS4w3wxTPEdnR9Y9lOvf-vI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Global variables
         let currentUser = null;
@@ -793,20 +791,6 @@
         
         function hideLoading() {
             document.getElementById('loadingOverlay').classList.remove('show');
-        }
-        
-        // Notification function
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notificationText');
-            
-            notificationText.textContent = message;
-            notification.className = 'notification ' + type;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 5000);
         }
         
         // WhatsApp Chat function
@@ -904,9 +888,6 @@
             if (currentUser.ktpVerified) {
                 ktpStatus.textContent = 'Terverifikasi';
                 ktpStatus.className = 'verification-badge verified';
-            } else if (currentUser.ktpRejected) {
-                ktpStatus.textContent = 'Ditolak';
-                ktpStatus.className = 'verification-badge rejected';
             } else if (currentUser.ktpUploaded) {
                 ktpStatus.textContent = 'Menunggu Verifikasi';
                 ktpStatus.className = 'verification-badge pending';
@@ -950,15 +931,6 @@
                 if (currentUser.ktpUrl) {
                     showUploadedKTP(currentUser.ktpUrl);
                 }
-            } else if (currentUser.ktpRejected) {
-                verificationBadge.textContent = 'Ditolak';
-                verificationBadge.className = 'verification-badge rejected';
-                verificationMessage.textContent = 'Dokumen Anda ditolak oleh admin. Alasan: ' + (currentUser.ktpRejectionReason || 'Tidak ada alasan yang diberikan.');
-                
-                // Show uploaded KTP if available
-                if (currentUser.ktpUrl) {
-                    showUploadedKTP(currentUser.ktpUrl);
-                }
             } else if (currentUser.ktpUploaded) {
                 verificationBadge.textContent = 'Menunggu Verifikasi';
                 verificationBadge.className = 'verification-badge pending';
@@ -993,17 +965,8 @@
             fileName.textContent = filename;
             
             removeButton.classList.remove('hidden');
-            
-            if (currentUser.ktpVerified) {
-                submitButton.disabled = true;
-                submitButton.textContent = 'Dokumen Telah Terverifikasi';
-            } else if (currentUser.ktpRejected) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Upload Ulang Dokumen';
-            } else {
-                submitButton.disabled = true;
-                submitButton.textContent = 'Dokumen Telah Diupload';
-            }
+            submitButton.disabled = true;
+            submitButton.textContent = 'Dokumen Telah Diupload';
         }
         
         // Handle profile image selection
@@ -1037,50 +1000,50 @@
             uploadProfileImage();
         }
         
-        // Upload profile image to Firebase Storage
+        // Upload profile image to Supabase
         async function uploadProfileImage() {
             if (!selectedProfileImageFile) return;
             
             showLoading('Mengupload Foto Profil...', 'Mohon tunggu sebentar');
             
             try {
-                // Create a storage reference
-                const storageRef = storage.ref();
-                const profileImageRef = storageRef.child(`profile_images/${currentUser.id}/${Date.now()}_${selectedProfileImageFile.name}`);
+                const fileName = `profile_${currentUser.id}_${Date.now()}.${selectedProfileImageFile.name.split('.').pop()}`;
+                const filePath = `profiles/${fileName}`;
                 
-                // Upload file
-                const snapshot = await profileImageRef.put(selectedProfileImageFile);
+                // Upload to Supabase Storage
+                const { data, error } = await supabase.storage
+                    .from('profiles')
+                    .upload(filePath, selectedProfileImageFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
                 
-                // Get download URL
-                const downloadURL = await snapshot.ref.getDownloadURL();
+                if (error) {
+                    throw error;
+                }
+                
+                // Get public URL
+                const { data: publicUrlData } = supabase.storage
+                    .from('profiles')
+                    .getPublicUrl(filePath);
+                
+                const publicUrl = publicUrlData.publicUrl;
                 
                 // Update user data in Firestore
                 await db.collection('users').doc(currentUser.id).update({
-                    profileImageUrl: downloadURL,
+                    profileImageUrl: publicUrl,
                     profileImageUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 // Update local user data
-                currentUser.profileImageUrl = downloadURL;
+                currentUser.profileImageUrl = publicUrl;
                 
                 hideLoading();
                 showNotification('Foto profil berhasil diperbarui', 'success');
             } catch (error) {
                 console.error('Error uploading profile image:', error);
                 hideLoading();
-                
-                let errorMessage = 'Gagal mengupload foto profil. ';
-                if (error.code === 'storage/unauthorized') {
-                    errorMessage += 'Anda tidak memiliki izin untuk mengupload file.';
-                } else if (error.code === 'storage/canceled') {
-                    errorMessage += 'Upload dibatalkan.';
-                } else if (error.code === 'storage/unknown') {
-                    errorMessage += 'Terjadi kesalahan yang tidak diketahui.';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showNotification(errorMessage, 'error');
+                showNotification('Gagal mengupload foto profil', 'error');
             }
         }
         
@@ -1203,9 +1166,6 @@
             if (currentUser.ktpVerified) {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Dokumen Telah Terverifikasi';
-            } else if (currentUser.ktpRejected) {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Upload Ulang Dokumen';
             } else {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Upload Dokumen';
@@ -1227,7 +1187,7 @@
             input.click();
         }
         
-        // Submit verification - Upload to Firebase Storage
+        // Submit verification - Upload to Supabase
         async function submitVerification() {
             if (!selectedFile) {
                 showNotification('Silakan pilih file KTP/Paspor terlebih dahulu', 'error');
@@ -1244,79 +1204,74 @@
                 
                 uploadProgressContainer.classList.remove('hidden');
                 
-                // Create a storage reference
-                const storageRef = storage.ref();
-                const ktpRef = storageRef.child(`ktp_documents/${currentUser.id}/${Date.now()}_${selectedFile.name}`);
+                const fileName = `ktp_${currentUser.id}_${Date.now()}.${selectedFile.name.split('.').pop()}`;
+                const filePath = `verifications/${fileName}`;
                 
-                // Upload file with progress tracking
-                const uploadTask = ktpRef.put(selectedFile);
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress > 90) progress = 90;
+                    uploadProgressBar.style.width = progress + '%';
+                    uploadPercent.textContent = progress + '%';
+                }, 200);
                 
-                // Listen for state changes, errors, and completion of the upload.
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        uploadProgressBar.style.width = progress + '%';
-                        uploadPercent.textContent = Math.round(progress) + '%';
-                    }, 
-                    (error) => {
-                        // Handle unsuccessful uploads
-                        console.error('Error uploading KTP:', error);
-                        hideLoading();
-                        
-                        let errorMessage = 'Gagal mengupload dokumen. ';
-                        if (error.code === 'storage/unauthorized') {
-                            errorMessage += 'Anda tidak memiliki izin untuk mengupload file.';
-                        } else if (error.code === 'storage/canceled') {
-                            errorMessage += 'Upload dibatalkan.';
-                        } else if (error.code === 'storage/unknown') {
-                            errorMessage += 'Terjadi kesalahan yang tidak diketahui.';
-                        } else {
-                            errorMessage += error.message;
-                        }
-                        
-                        showNotification(errorMessage, 'error');
-                        uploadProgressContainer.classList.add('hidden');
-                    }, 
-                    async () => {
-                        // Handle successful uploads on complete
-                        // Get download URL
-                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        
-                        // Update user data in Firestore
-                        await db.collection('users').doc(currentUser.id).update({
-                            ktpUploaded: true,
-                            ktpRejected: false, // Reset rejected status when re-uploading
-                            ktpUrl: downloadURL,
-                            ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
-                            // Note: ktpVerified will be set by admin in dashboard
-                        });
-                        
-                        // Update local user data
-                        currentUser.ktpUploaded = true;
-                        currentUser.ktpRejected = false;
-                        currentUser.ktpUrl = downloadURL;
-                        currentUser.ktpUploadDate = new Date();
-                        // Note: ktpVerified remains false until admin approves
-                        
-                        // Update UI
-                        updateProfileStatus();
-                        loadVerificationStatus();
-                        
-                        hideLoading();
-                        showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
-                        
-                        // Disable submit button
-                        document.getElementById('submitVerification').disabled = true;
-                        document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
-                        
-                        // Hide upload progress
-                        uploadProgressContainer.classList.add('hidden');
-                        
-                        // Check if profile is completed
-                        checkProfileCompletion();
-                    }
-                );
+                // Upload to Supabase Storage
+                const { data, error } = await supabase.storage
+                    .from('verifications')
+                    .upload(filePath, selectedFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                clearInterval(progressInterval);
+                
+                // Complete progress
+                uploadProgressBar.style.width = '100%';
+                uploadPercent.textContent = '100%';
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Get public URL
+                const { data: publicUrlData } = supabase.storage
+                    .from('verifications')
+                    .getPublicUrl(filePath);
+                
+                const publicUrl = publicUrlData.publicUrl;
+                uploadedFileUrl = publicUrl;
+                
+                // Update user data in Firestore - only upload status, not verification
+                await db.collection('users').doc(currentUser.id).update({
+                    ktpUploaded: true,
+                    ktpUrl: publicUrl,
+                    ktpUploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                    // Note: ktpVerified will be set by admin in dashboard
+                });
+                
+                // Update local user data
+                currentUser.ktpUploaded = true;
+                currentUser.ktpUrl = publicUrl;
+                currentUser.ktpUploadDate = new Date();
+                // Note: ktpVerified remains false until admin approves
+                
+                // Update UI
+                updateProfileStatus();
+                loadVerificationStatus();
+                
+                hideLoading();
+                showNotification('Dokumen berhasil diupload. Admin akan memverifikasi dokumen Anda.', 'success');
+                
+                // Disable submit button
+                document.getElementById('submitVerification').disabled = true;
+                document.getElementById('submitVerification').textContent = 'Dokumen Telah Diupload';
+                
+                // Hide upload progress
+                uploadProgressContainer.classList.add('hidden');
+                
+                // Check if profile is completed
+                checkProfileCompletion();
             } catch (error) {
                 console.error('Error submitting verification:', error);
                 hideLoading();
@@ -1486,25 +1441,41 @@
             try {
                 await auth.signOut();
                 
-                // Update last login
+                // Update last login in Firestore
                 if (currentUser) {
                     await db.collection('users').doc(currentUser.id).update({
-                        lastLogout: firebase.firestore.FieldValue.serverTimestamp()
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
                 
                 hideLoading();
-                showNotification('Anda telah keluar dari sistem', 'success');
                 
                 // Redirect to login page
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Error logging out:', error);
                 hideLoading();
-                showNotification('Gagal keluar dari sistem', 'error');
+                showNotification('Gagal keluar. Silakan coba lagi.', 'error');
             }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
         }
         
         // Close user menu when clicking outside
@@ -1512,7 +1483,7 @@
             const userMenu = document.getElementById('userMenu');
             const userProfile = document.getElementById('userProfile');
             
-            if (userProfile && !userProfile.contains(event.target) && !userMenu.classList.contains('hidden')) {
+            if (!userProfile.contains(event.target)) {
                 userMenu.classList.add('hidden');
             }
         });
