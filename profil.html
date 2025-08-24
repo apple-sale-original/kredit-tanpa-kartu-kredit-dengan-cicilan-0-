@@ -658,7 +658,6 @@
                                         </ul>
                                     </div>
                                     
-                                    <!-- Admin Verification Link - Removed for regular users -->
                                     <div class="mt-6 p-4 bg-gray-100 border border-gray-200 rounded-lg">
                                         <div class="flex items-center">
                                             <i class="fas fa-info-circle text-gray-600 mr-3"></i>
@@ -761,6 +760,7 @@
             apiKey: "AIzaSyBRt-74qBrtvop8J7YOWtDOS7gBMp0dsiQ",
             authDomain: "kredit-hp-221a1.firebaseapp.com",
             projectId: "kredit-hp-221a1",
+            storageBucket: "kredit-hp-221a1.firebasestorage.app",
             messagingSenderId: "428804203261",
             appId: "1:428804203261:web:51aa0bb8d4a65080a25494",
             measurementId: "G-EJW00GWVS9"
@@ -772,8 +772,8 @@
         const db = firebase.firestore();
         
         // Supabase Configuration
-        const SUPABASE_URL = 'https://entzuqjzurwyqzpqhzvw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudHp1cWp6dXJ3eXF6cHFoenZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5OTE4MTEsImV4cCI6MjA3MTU2NzgxMX0.UX7HSSablVXOTkwMj7rkPS4w3wxTPEdnR9Y9lOvf-vI';
+        const SUPABASE_URL = 'https://kgyuvurtwywzcnxqodzp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtneXV2dXJ0d3l3emNueHFvZHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5OTYyODksImV4cCI6MjA3MTU3MjI4OX0.n4MpZ4770X1gbLMp0ZArN-dzC9_apxg13AlrMCN-0MQ';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Global variables
